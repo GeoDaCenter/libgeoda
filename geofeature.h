@@ -107,7 +107,7 @@ namespace gda {
 
 	struct MainMap {
 		MainMap() : num_obs(0), shape_type(NULL_SHAPE),
-		bbox_x_min(DBL_MAX), bbox_y_min(DBL_MAX), bbox_x_max(DBL_MIN), bbox_y_max(DBL_MIN) {}
+		bbox_x_min(DBL_MAX), bbox_y_min(DBL_MAX), bbox_x_max(-DBL_MAX), bbox_y_max(-DBL_MAX) {}
 		virtual ~MainMap() {
 			for (size_t i=0; i<records.size(); i++) {
 				if(records[i]) delete records[i];

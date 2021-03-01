@@ -16,14 +16,14 @@
 
 #include "../shape/jc_voronoi.h"
 
-std::string jcv_point_str(const jcv_point& pt) 
+std::string jcv_point_str(const jcv_point& pt)
 {
     std::stringstream ss;
     ss << pt.x << "," << pt.y;
     return ss.str();
 }
 
-std::string jcv_edge_str(const jcv_graphedge* edge) 
+std::string jcv_edge_str(const jcv_graphedge* edge)
 {
     std::stringstream ss;
     jcv_real x0 = std::min(edge->pos[0].x, edge->pos[0].x);
@@ -47,8 +47,8 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
 
     double x_orig_min = std::numeric_limits<double>::max();
     double y_orig_min = std::numeric_limits<double>::max();
-    double x_orig_max = std::numeric_limits<double>::min();
-    double y_orig_max = std::numeric_limits<double>::min();
+    double x_orig_max = -std::numeric_limits<double>::max();
+    double y_orig_max = -std::numeric_limits<double>::max();
 
     for (size_t i=0; i<num_obs; ++i) {
         if (x_orig_min < x[i]) x_orig_min = x[i];
@@ -69,7 +69,7 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
 	double bb_ymax = y_orig_max + y_range * bb_pad;
 
     // seed sites
-    jcv_point* points = new jcv_point[num_obs];     
+    jcv_point* points = new jcv_point[num_obs];
     for (size_t i=0; i< num_obs; ++i) {
         points[i].x = (float)x[i];
         points[i].y = (float)y[i];
@@ -116,8 +116,8 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
     std::map<std::string, std::set<int> >::iterator it;
     std::set<int>::iterator nbr_it;
     if (queen) {
-        for (it=jcvpoint_to_site.begin(); 
-            it != jcvpoint_to_site.end(); ++it) 
+        for (it=jcvpoint_to_site.begin();
+            it != jcvpoint_to_site.end(); ++it)
         {
             // it->second are neighbors
             const std::set<int>& nbrs = it->second;
@@ -132,8 +132,8 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
             }
         }
     } else {
-        for (it=edge_to_site.begin(); 
-            it != edge_to_site.end(); ++it) 
+        for (it=edge_to_site.begin();
+            it != edge_to_site.end(); ++it)
         {
             // it->second are neighbors
             const std::set<int>& nbrs = it->second;

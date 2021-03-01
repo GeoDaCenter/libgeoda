@@ -70,7 +70,7 @@ GeoDa::GeoDa(GeoDaTable* table, const std::string& layer_name,
              const std::vector<int>& wkb_bytes_len)
 : numObs(wkb_bytes_len.size()), numCols(0), table(table)
 {
-    main_map = new gda::MainMap();
+  main_map = 0;
 	Init(layer_name, map_type, wkb_bytes_len.size(), (unsigned char*)(&wkbs[0]), wkb_bytes_len);
 }
 
@@ -106,6 +106,11 @@ void GeoDa::Init(const std::string &layer_name,
                  unsigned char* wkbs,
                  const std::vector<int>& wkb_bytes_len)
 {
+  if (main_map) {
+    delete main_map;
+  }
+  main_map = new gda::MainMap();
+
     if (map_type == "map_polygons") {
         //mapType = polygon_type;
         main_map->shape_type = gda::POLYGON;
@@ -128,7 +133,7 @@ void GeoDa::Init(const std::string &layer_name,
         wkb_offset += wkb_bytes_len[i];
 
         if (lwgeom_is_empty(lwgeom)) {
-            //lwdebug(4, "build_pg_geoad: addnullgeometry()");
+            //printf("build_pg_geoad: addnullgeometry()");
             AddNullGeometry();
         } else {
             if (lwgeom->type == POINTTYPE) {
@@ -148,7 +153,7 @@ void GeoDa::Init(const std::string &layer_name,
                 LWMPOLY *mpoly = lwgeom_as_lwmpoly(lwgeom);
                 AddMultiPolygon(mpoly);
             } else {
-                //lwdebug(4, "Unknown WKB type %s\n", lwtype_name(lwgeom->type));
+                //printf("Unknown WKB type %s\n", lwtype_name(lwgeom->type));
                 AddNullGeometry();
             }
         }
@@ -209,8 +214,8 @@ void GeoDa::AddPolygon(LWPOLY *lw_poly) {
 
     double minx = DBL_MAX;
     double miny = DBL_MAX;
-    double maxx = DBL_MIN;
-    double maxy = DBL_MIN;
+    double maxx = -DBL_MAX;
+    double maxy = -DBL_MAX;
     double x, y;
 
     /* Iterate through each ring setting up shpparts to point to the beginning of each ring */
@@ -279,8 +284,8 @@ void GeoDa::AddMultiPolygon(LWMPOLY *lw_mpoly) {
 
     double minx = DBL_MAX;
     double miny = DBL_MAX;
-    double maxx = DBL_MIN;
-    double maxy = DBL_MIN;
+    double maxx = -DBL_MAX;
+    double maxy = -DBL_MAX;
     double x, y;
 
     /* Iterate through each ring of each polygon in turn */
@@ -293,7 +298,7 @@ void GeoDa::AddMultiPolygon(LWMPOLY *lw_mpoly) {
             bool is_hole = j > 0 ? true : false;
             poly->holes.push_back(is_hole);
 
-            LWDEBUGF(4, "Ring offset: %d", shpring);
+            //LWDEBUGF(4, "Ring offset: %d", shpring);
 
             for (k = 0; k < lw_mpoly->geoms[i]->rings[j]->npoints; k++) {
                 p4d = getPoint4d(lw_mpoly->geoms[i]->rings[j], k);
@@ -650,7 +655,80 @@ void GeoDa::ReadShapefile(const char* fpath)
     }
     SHPClose( hSHP );
 }
+/*
+GeoDa::GeoDa(GeoDaTable* table, const std::string& layer_name,
+             const std::string& map_type,
+             int num_features,
+             const std::vector<double>& bbox,
+             const std::vector<std::vector<double> >& geoms)
+{
+    if (map_type == "map_polygons") {
+        //mapType = polygon_type;
+        main_map->shape_type = gda::POLYGON;
+    } else if (map_type == "map_points") {
+        main_map->shape_type = gda::POINT_TYP;
+    } else if (map_type == "map_lines") {
+        main_map->shape_type = gda::POLY_LINE;
+    } else {
+#ifndef __RGEODA__
+        std::cout << "map type is not supported." << std::endl;
+#endif
+    }
 
+    // get geometry envelope
+    main_map->bbox_x_min = bbox[0];
+    main_map->bbox_y_min = bbox[1];
+    main_map->bbox_x_max = bbox[2];
+    main_map->bbox_y_max = bbox[3];
+
+    // resize geometry records
+    main_map->num_obs = num_features;
+
+    for (int row_idx =0; row_idx < num_features; ++row_idx) {
+        if( geoms[row_idx].empty()) {
+            // empty shape
+            main_map->records.push_back(new gda::NullShapeContents());
+            continue;
+        }
+
+
+        if (main_map->shape_type == gda::POINT_TYP) {
+            // only the first point even if multi-points
+            gda::PointContents* pc = new gda::PointContents();
+            pc->x = geoms[row_idx][0];
+            pc->y = geoms[row_idx][1];
+            main_map->records.push_back(pc);
+
+        } else if (main_map->shape_type == gda::POLYGON) {
+            int n_points = (int)geoms[row_idx].size() / 2;
+
+            gda::PolygonContents* pc = new gda::PolygonContents();
+            pc->num_parts = psShape->nParts;
+            pc->num_points = psShape->nVertices;
+            pc->box[0] = psShape->dfXMin;
+            pc->box[1] = psShape->dfYMin;
+            pc->box[2] = psShape->dfXMax;
+            pc->box[3] = psShape->dfYMax;
+            double x,y;
+            for (j = 0; j < psShape->nParts; ++j) {
+                int itStart = psShape->panPartStart[j];
+                int itEnd = (j + 1 < psShape->nParts) ? psShape->panPartStart[j + 1] : psShape->nVertices;
+                pc->parts.push_back(itStart);
+                pc->holes.push_back(j>0);
+                for (int k = itStart; k < itEnd; ++k) {
+                    // ring append
+                    x = psShape->padfX[k];
+                    y = psShape->padfY[k];
+                    pc->points.push_back(gda::Point(x,y));
+                }
+            }
+            main_map->records.push_back(pc);
+        } else if (main_map->shape_type == gda::POINT_TYP) {
+
+        }
+    }
+}
+*/
 // The following function will be reserved for working with GDAL
 void GeoDa::ReadAllFeatures()
 {
@@ -660,8 +738,8 @@ void GeoDa::ReadAllFeatures()
     // get geometry envelope
     //main_map->bbox_x_min = std::numeric_limits<double>::max();
     //main_map->bbox_y_min = std::numeric_limits<double>::max();
-    //main_map->bbox_x_max = std::numeric_limits<double>::lowest();
-    //main_map->bbox_y_max = std::numeric_limits<double>::lowest();
+    //main_map->bbox_x_max = -std::numeric_limits<double>::max();
+    //main_map->bbox_y_max = -std::numeric_limits<double>::max();
 
     // resize geometry records
     main_map->num_obs = numObs;

@@ -127,6 +127,12 @@ public:
           unsigned char* wkbs,
           const std::vector<int>& wkb_bytes_len);
 
+    //GeoDa(GeoDaTable* table, const std::string& layer_name,
+    //      const std::string& map_type,
+    //      int num_features,
+    //      const std::vector<double>& bbox,
+    //      const std::vector<std::vector<double> >& geoms);
+
     // this constructor is for ESRI Shapefile
     GeoDa(const char* pDsPath, const char* layer_name=NULL);
 

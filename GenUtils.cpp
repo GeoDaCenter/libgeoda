@@ -1291,7 +1291,7 @@ bool GenUtils::StandardizeData(std::vector<double>& data, std::vector<bool>& und
 
 void GenUtils::RangeAdjust(std::vector<double>& data)
 {
-    double min_val = DBL_MAX, max_val = DBL_MIN;
+    double min_val = DBL_MAX, max_val = -DBL_MAX;
     for (size_t i=0; i<data.size(); ++i) {
         if (data[i] < min_val) min_val = data[i];
         else if (data[i] > max_val) max_val = data[i];
@@ -1307,7 +1307,7 @@ void GenUtils::RangeAdjust(std::vector<double>& data)
 
 void GenUtils::RangeAdjust(std::vector<double>& data, std::vector<bool>& undef)
 {
-    double min_val = DBL_MAX, max_val = DBL_MIN;
+    double min_val = DBL_MAX, max_val = -DBL_MAX;
     for (size_t i=0; i<data.size(); ++i) {
         if (undef[i]) continue;
         if (data[i] < min_val) min_val = data[i];
@@ -1325,7 +1325,7 @@ void GenUtils::RangeAdjust(std::vector<double>& data, std::vector<bool>& undef)
 
 void GenUtils::RangeStandardize(std::vector<double>& data)
 {
-    double min_val = DBL_MAX, max_val = DBL_MIN;
+    double min_val = DBL_MAX, max_val = -DBL_MAX;
     for (size_t i=0; i<data.size(); ++i) {
         if (data[i] < min_val) min_val = data[i];
         else if (data[i] > max_val) max_val = data[i];
@@ -1341,7 +1341,7 @@ void GenUtils::RangeStandardize(std::vector<double>& data)
 
 void GenUtils::RangeStandardize(std::vector<double>& data, std::vector<bool>& undef)
 {
-    double min_val = DBL_MAX, max_val = DBL_MIN;
+    double min_val = DBL_MAX, max_val = -DBL_MAX;
     for (size_t i=0; i<data.size(); ++i) {
         if (undef[i]) continue;
         if (data[i] < min_val) min_val = data[i];

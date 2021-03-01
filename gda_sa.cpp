@@ -231,7 +231,7 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
     std::vector<double> breaks = GenUtils::QuantileBreaks(k, data, copy_undefs);
 
     quantile = quantile - 1;
-    double break_left = DBL_MIN;
+    double break_left = -DBL_MAX;
     double break_right = DBL_MAX;
 
     if (quantile == 0)
@@ -296,7 +296,7 @@ LISA *gda_multiquantilelisa(GeoDaWeight *w, const std::vector<int>& k_s, const s
         std::vector<double> breaks = GenUtils::QuantileBreaks(k, copy_data, copy_undefs);
 
         q = q - 1;
-        double break_left = DBL_MIN;
+        double break_left = -DBL_MAX;
         double break_right = DBL_MAX;
 
         if (q == 0)
