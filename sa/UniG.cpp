@@ -108,7 +108,7 @@ void UniG::ComputeLoalSA() {
     }
 }
 
-// Used by permutation_method=="lookup-table"
+// Used by permutation_method=="lookup"
 void UniG::PermLocalSA(int cnt, int perm, int numNeighbors, const int* permNeighbors,
                                 std::vector<double>& permutedSA) {
     int validNeighbors = 0;
