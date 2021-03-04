@@ -21,6 +21,8 @@ public:
 
     virtual int GetMapType() = 0;
 
+    virtual std::string GetMapTypeName() = 0;
+
     virtual gda::MainMap& GetMainMap() = 0;
 
 };

@@ -347,14 +347,14 @@ const std::vector<gda::PointContents*>& GeoDa::GetCentroids()
 {
     // copy centroid from OGRGeometry
    if (centroids.empty()) {
-       if (this->GetMapType() == gda::POINT_TYP) {
+       if (main_map->shape_type == gda::POINT_TYP) {
            this->centroids.resize(this->GetNumObs());
            for (size_t i=0; i<this->centroids.size(); ++i) {
                this->centroids[i] = new gda::PointContents;
                this->centroids[i]->x = ((gda::PointContents*)(this->main_map->records[i]))->x;
                this->centroids[i]->y = ((gda::PointContents*)(this->main_map->records[i]))->y;
            }
-       } else if (this->GetMapType() == gda::POLYGON) {
+       } else if (main_map->shape_type == gda::POLYGON) {
            this->centroids.resize(this->GetNumObs());
            for (size_t i=0; i<this->centroids.size(); ++i) {
                gda::PolygonContents* poly = (gda::PolygonContents*)this->main_map->records[i];
@@ -497,13 +497,18 @@ int GeoDa::GetNumCols() const {
     return 0;
 }
 
-std::string GeoDa::GetMapType()
+int GeoDa::GetMapType()
 {
-    if (main_map->shape_type == ShapeType::POLYGON || main_map->shape_type == POLYGON_Z || main_map->shape_type == POLYGON_M) {
+    return main_map->shape_type;
+}
+
+std::string GeoDa::GetMapTypeName()
+{
+    if (main_map->shape_type == gda::POLYGON || main_map->shape_type == gda::POLYGON_Z || main_map->shape_type == gda::POLYGON_M) {
         return "Polygon";
-    } else if (main_map->shape_type == ShapeType::POINT_TYP || main_map->shape_type == ShapeType::MULTI_POINT || main_map->shape_type == ShapeType::POINT_Z || main_map->shape_type == ShapeType::POINT_M || main_map->shape_type == ShapeType::MULTI_POINT_Z) {
+    } else if (main_map->shape_type == gda::POINT_TYP || main_map->shape_type == gda::MULTI_POINT || main_map->shape_type == gda::POINT_Z || main_map->shape_type == gda::POINT_M || main_map->shape_type == gda::MULTI_POINT_Z) {
         return "Point";
-    } else if (main_map->shape_type == ShapeType::POLY_LINE || main_map->shape_type == ShapeType::POLY_LINE_Z || main_map->shape_type == ShapeType::POLY_LINE_M ) {
+    } else if (main_map->shape_type == gda::POLY_LINE || main_map->shape_type == gda::POLY_LINE_Z || main_map->shape_type == gda::POLY_LINE_M ) {
         return "Line";
     } else {
         return "Unknown";
