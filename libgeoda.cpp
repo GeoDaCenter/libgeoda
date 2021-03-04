@@ -497,9 +497,17 @@ int GeoDa::GetNumCols() const {
     return 0;
 }
 
-int GeoDa::GetMapType()
+std::string GeoDa::GetMapType()
 {
-    return main_map->shape_type;
+    if (main_map->shape_type == ShapeType::POLYGON || main_map->shape_type == POLYGON_Z || main_map->shape_type == POLYGON_M) {
+        return "Polygon";
+    } else if (main_map->shape_type == ShapeType::POINT_TYP || main_map->shape_type == ShapeType::MULTI_POINT || main_map->shape_type == ShapeType::POINT_Z || main_map->shape_type == ShapeType::POINT_M || main_map->shape_type == ShapeType::MULTI_POINT_Z) {
+        return "Point";
+    } else if (main_map->shape_type == ShapeType::POLY_LINE || main_map->shape_type == ShapeType::POLY_LINE_Z || main_map->shape_type == ShapeType::POLY_LINE_M ) {
+        return "Line";
+    } else {
+        return "Unknown";
+    }
 }
 
 void GeoDa::ReadDbffile(const char* fpath)

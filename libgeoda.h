@@ -141,7 +141,7 @@ public:
     // interfaces from AbstractGeoDa
     virtual int GetNumObs() const;
     virtual const std::vector<gda::PointContents*>& GetCentroids();
-    virtual int GetMapType();
+    virtual std::string GetMapType();
     virtual gda::MainMap& GetMainMap();
 
     // Layer functions
