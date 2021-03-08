@@ -349,7 +349,7 @@ bool GalWeight::Save(const char* ofname,
 bool GalWeight::Save(const char* ofname,
                      const char* layer_name,
                      const char* id_var_name,
-                     const std::vector<const char*>& id_vec)
+                     const std::vector<std::string>& id_vec)
 {
     std::ofstream out;
     out.open(ofname);

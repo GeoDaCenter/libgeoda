@@ -31,7 +31,7 @@ public:
     virtual bool   Save(const char* ofname,
                               const char* layer_name,
                               const char* id_var_name,
-                              const std::vector<const char*>& id_vec) = 0;
+                              const std::vector<std::string>& id_vec) = 0;
     // functions:
     virtual bool   IsSymmetric() const;
     virtual double GetSparsity() const;

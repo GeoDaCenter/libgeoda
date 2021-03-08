@@ -180,7 +180,7 @@ GwtWeight::Save(const char *ofname, const char *layer_name, const char *id_var_n
 }
 
 bool GwtWeight::Save(const char *ofname, const char *layer_name, const char *id_var_name,
-                     const std::vector<const char *> &id_vec) {
+                     const std::vector<std::string> &id_vec) {
     std::ofstream out;
     out.open(ofname);
     if (!(out.is_open() && out.good())) return false;
