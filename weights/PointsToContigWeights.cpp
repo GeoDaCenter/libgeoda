@@ -120,7 +120,7 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
             it != jcvpoint_to_site.end(); ++it)
         {
             // it->second are neighbors
-            const std::set<int>& nbrs = it->second;
+            std::set<int>& nbrs = it->second;
             for (nbr_it=nbrs.begin(); nbr_it!=nbrs.end(); ++nbr_it) {
                 int ii = *nbr_it;
                 for (nbr_it=nbrs.begin(); nbr_it!=nbrs.end(); ++nbr_it) {
@@ -136,7 +136,7 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
             it != edge_to_site.end(); ++it)
         {
             // it->second are neighbors
-            const std::set<int>& nbrs = it->second;
+            std::set<int>& nbrs = it->second;
             for (nbr_it=nbrs.begin(); nbr_it!=nbrs.end(); ++nbr_it) {
                 int ii = *nbr_it;
                 for (nbr_it=nbrs.begin(); nbr_it!=nbrs.end(); ++nbr_it) {
