@@ -505,7 +505,7 @@ void RegionMaker::setSeeds(std::vector<int> seeds)
     // Sets the initial seeds for clustering
     if ((int)seeds.size() < p) {
         // pick more to fill up seeds
-        std::vector<int> didx(n, true);
+        std::vector<bool> didx(n, true);
         // remove seeds, and neighborless observations
         for (size_t i=0; i<seeds.size(); ++i) {
             didx[ seeds[i] ] = false;

@@ -49,7 +49,7 @@ MultiJoinCount::MultiJoinCount(int num_obs, GeoDaWeight *w,
     zz.resize(num_obs, 1);
     for (int i=0; i<num_obs; i++) {
         for (int v = 0; v < num_vars; v++) {
-            zz[i] = zz[i] * data[v][i];  // 0 or 1
+            zz[i] = zz[i] * (int)data[v][i];  // 0 or 1
         }
     }
 

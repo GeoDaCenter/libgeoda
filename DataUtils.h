@@ -522,7 +522,7 @@ public:
 
         unsigned long long cnt = 0;
         unsigned long long nn = _n*(_n-1)/2;
-        double* result = new double[nn];
+        double* result = new double[(int)nn];
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 result[cnt++] = dist(matrix[i], matrix[j], k, weight);
@@ -537,7 +537,7 @@ public:
 
         unsigned long long cnt = 0;
         unsigned long long nn = _n*(_n-1)/2;
-        double* result = new double[nn];
+        double* result = new double[(int)nn];
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 if (w[i].Check(j)) {

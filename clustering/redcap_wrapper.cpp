@@ -40,7 +40,7 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             for (int i=0; i<num_obs; ++i) {
                 matrix[i] = new double[n_cols];
                 mask[i] = new int[n_cols];
-                for (int j=0; j<n_cols; ++j) mask[i][j] = 1.0;
+                for (int j=0; j<n_cols; ++j) mask[i][j] = 1;
             }
             for (int i=0; i<n_cols; ++i) {
                 // the data will be standardized in the caller
