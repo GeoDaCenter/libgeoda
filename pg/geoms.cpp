@@ -187,13 +187,13 @@ void lwpoint_free(LWPOINT *pt)
 LWPOLY *
 lwpoly_construct_empty(int32_t srid, char hasz, char hasm)
 {
-    LWPOLY *result = lwalloc(sizeof(LWPOLY));
+    LWPOLY *result = (LWPOLY*)lwalloc(sizeof(LWPOLY));
     result->type = POLYGONTYPE;
     result->flags = lwflags(hasz,hasm,0);
     result->srid = srid;
     result->nrings = 0;
     result->maxrings = 1; /* Allocate room for ring, just in case. */
-    result->rings = lwalloc(result->maxrings * sizeof(POINTARRAY*));
+    result->rings = (POINTARRAY **)lwalloc(result->maxrings * sizeof(POINTARRAY*));
     result->bbox = NULL;
     return result;
 }
@@ -243,7 +243,7 @@ void lwcollection_reserve(LWCOLLECTION *col, uint32_t ngeoms)
 
     /* Allocate more space if we need it */
     do { col->maxgeoms *= 2; } while ( col->maxgeoms < ngeoms );
-    col->geoms = lwrealloc(col->geoms, sizeof(LWGEOM*) * col->maxgeoms);
+    col->geoms = (LWGEOM**)lwrealloc(col->geoms, sizeof(LWGEOM*) * col->maxgeoms);
 }
 
 void
@@ -451,7 +451,7 @@ ptarray_construct(char hasz, char hasm, uint32_t npoints)
 POINTARRAY*
 ptarray_construct_empty(char hasz, char hasm, uint32_t maxpoints)
 {
-    POINTARRAY *pa = lwalloc(sizeof(POINTARRAY));
+    POINTARRAY *pa = (POINTARRAY*)lwalloc(sizeof(POINTARRAY));
     pa->serialized_pointlist = NULL;
 
     /* Set our dimensionality info on the bitmap */
@@ -463,7 +463,7 @@ ptarray_construct_empty(char hasz, char hasm, uint32_t maxpoints)
 
     /* Allocate the coordinate array */
     if ( maxpoints > 0 )
-        pa->serialized_pointlist = lwalloc(maxpoints * ptarray_point_size(pa));
+        pa->serialized_pointlist = (uint8_t *)lwalloc(maxpoints * ptarray_point_size(pa));
     else
         pa->serialized_pointlist = NULL;
 
@@ -473,7 +473,7 @@ ptarray_construct_empty(char hasz, char hasm, uint32_t maxpoints)
 POINTARRAY*
 ptarray_construct_copy_data(char hasz, char hasm, uint32_t npoints, const uint8_t *ptlist)
 {
-    POINTARRAY *pa = lwalloc(sizeof(POINTARRAY));
+    POINTARRAY *pa = (POINTARRAY*)lwalloc(sizeof(POINTARRAY));
 
     pa->flags = lwflags(hasz, hasm, 0);
     pa->npoints = npoints;
@@ -481,7 +481,7 @@ ptarray_construct_copy_data(char hasz, char hasm, uint32_t npoints, const uint8_
 
     if ( npoints > 0 )
     {
-        pa->serialized_pointlist = lwalloc(ptarray_point_size(pa) * npoints);
+        pa->serialized_pointlist = (uint8_t*)lwalloc(ptarray_point_size(pa) * npoints);
         memcpy(pa->serialized_pointlist, ptlist, ptarray_point_size(pa) * npoints);
     }
     else
@@ -505,7 +505,7 @@ lwpoint_construct(int32_t srid, GBOX *bbox, POINTARRAY *point)
     if (point == NULL)
         return NULL; /* error */
 
-    result = lwalloc(sizeof(LWPOINT));
+    result = (LWPOINT *)lwalloc(sizeof(LWPOINT));
     result->type = POINTTYPE;
     FLAGS_SET_Z(flags, FLAGS_GET_Z(point->flags));
     FLAGS_SET_M(flags, FLAGS_GET_M(point->flags));
@@ -521,7 +521,7 @@ lwpoint_construct(int32_t srid, GBOX *bbox, POINTARRAY *point)
 LWPOINT *
 lwpoint_construct_empty(int32_t srid, char hasz, char hasm)
 {
-    LWPOINT *result = lwalloc(sizeof(LWPOINT));
+    LWPOINT *result = (LWPOINT *)lwalloc(sizeof(LWPOINT));
     result->type = POINTTYPE;
     result->flags = lwflags(hasz, hasm, 0);
     result->srid = srid;
@@ -535,13 +535,13 @@ lwcurvepoly_construct_empty(int32_t srid, char hasz, char hasm)
 {
     LWCURVEPOLY *ret;
 
-    ret = lwalloc(sizeof(LWCURVEPOLY));
+    ret = (LWCURVEPOLY *)lwalloc(sizeof(LWCURVEPOLY));
     ret->type = CURVEPOLYTYPE;
     ret->flags = lwflags(hasz, hasm, 0);
     ret->srid = srid;
     ret->nrings = 0;
     ret->maxrings = 1; /* Allocate room for sub-members, just in case. */
-    ret->rings = lwalloc(ret->maxrings * sizeof(LWGEOM*));
+    ret->rings = (LWGEOM **)lwalloc(ret->maxrings * sizeof(LWGEOM*));
     ret->bbox = NULL;
 
     return ret;
@@ -579,14 +579,14 @@ int lwcurvepoly_add_ring(LWCURVEPOLY *poly, LWGEOM *ring)
     {
         poly->maxrings = 2;
         poly->nrings = 0;
-        poly->rings = lwalloc(poly->maxrings * sizeof(LWGEOM*));
+        poly->rings = (LWGEOM **)lwalloc(poly->maxrings * sizeof(LWGEOM*));
     }
 
     /* Allocate more space if we need it */
     if ( poly->nrings == poly->maxrings )
     {
         poly->maxrings *= 2;
-        poly->rings = lwrealloc(poly->rings, sizeof(LWGEOM*) * poly->maxrings);
+        poly->rings = (LWGEOM **)lwrealloc(poly->rings, sizeof(LWGEOM*) * poly->maxrings);
     }
 
     /* Make sure we don't already have a reference to this geom */
@@ -616,13 +616,13 @@ lwcollection_construct_empty(uint8_t type, int32_t srid, char hasz, char hasm)
         return NULL;
     }
 
-    ret = lwalloc(sizeof(LWCOLLECTION));
+    ret = (LWCOLLECTION *)lwalloc(sizeof(LWCOLLECTION));
     ret->type = type;
     ret->flags = lwflags(hasz,hasm,0);
     ret->srid = srid;
     ret->ngeoms = 0;
     ret->maxgeoms = 1; /* Allocate room for sub-members, just in case. */
-    ret->geoms = lwalloc(ret->maxgeoms * sizeof(LWGEOM*));
+    ret->geoms = (LWGEOM **)lwalloc(ret->maxgeoms * sizeof(LWGEOM*));
     ret->bbox = NULL;
 
     return ret;
@@ -891,7 +891,7 @@ GBOX* gbox_copy(const GBOX *box)
 POINTARRAY *
 ptarray_clone_deep(const POINTARRAY *in)
 {
-    POINTARRAY *out = lwalloc(sizeof(POINTARRAY));
+    POINTARRAY *out = (POINTARRAY *)lwalloc(sizeof(POINTARRAY));
 
     out->flags = in->flags;
     out->npoints = in->npoints;
@@ -907,7 +907,7 @@ ptarray_clone_deep(const POINTARRAY *in)
     else
     {
         size_t size = in->npoints * ptarray_point_size(in);
-        out->serialized_pointlist = lwalloc(size);
+        out->serialized_pointlist = (uint8_t *)lwalloc(size);
         memcpy(out->serialized_pointlist, in->serialized_pointlist, size);
     }
 
@@ -940,7 +940,7 @@ lwpoly_add_ring(LWPOLY *poly, POINTARRAY *pa)
     if( poly->nrings >= poly->maxrings )
     {
         int new_maxrings = 2 * (poly->nrings + 1);
-        poly->rings = lwrealloc(poly->rings, new_maxrings * sizeof(POINTARRAY*));
+        poly->rings = (POINTARRAY **)lwrealloc(poly->rings, new_maxrings * sizeof(POINTARRAY*));
         poly->maxrings = new_maxrings;
     }
 
@@ -956,10 +956,10 @@ LWPOLY *
 lwpoly_clone_deep(const LWPOLY *g)
 {
     uint32_t i;
-    LWPOLY *ret = lwalloc(sizeof(LWPOLY));
+    LWPOLY *ret = (LWPOLY *)lwalloc(sizeof(LWPOLY));
     memcpy(ret, g, sizeof(LWPOLY));
     if ( g->bbox ) ret->bbox = gbox_copy(g->bbox);
-    ret->rings = lwalloc(sizeof(POINTARRAY *)*g->nrings);
+    ret->rings = (POINTARRAY **)lwalloc(sizeof(POINTARRAY *)*g->nrings);
     for ( i = 0; i < ret->nrings; i++ )
     {
         ret->rings[i] = ptarray_clone_deep(g->rings[i]);
@@ -972,7 +972,7 @@ lwpoly_clone_deep(const LWPOLY *g)
 LWLINE *
 lwline_clone_deep(const LWLINE *g)
 {
-    LWLINE *ret = lwalloc(sizeof(LWLINE));
+    LWLINE *ret = (LWLINE *)lwalloc(sizeof(LWLINE));
 
     LWDEBUGF(2, "lwline_clone_deep called with %p", g);
     memcpy(ret, g, sizeof(LWLINE));
@@ -991,11 +991,11 @@ LWCOLLECTION *
 lwcollection_clone_deep(const LWCOLLECTION *g)
 {
     uint32_t i;
-    LWCOLLECTION *ret = lwalloc(sizeof(LWCOLLECTION));
+    LWCOLLECTION *ret = (LWCOLLECTION *)lwalloc(sizeof(LWCOLLECTION));
     memcpy(ret, g, sizeof(LWCOLLECTION));
     if ( g->ngeoms > 0 )
     {
-        ret->geoms = lwalloc(sizeof(LWGEOM *)*g->ngeoms);
+        ret->geoms = (LWGEOM **)lwalloc(sizeof(LWGEOM *)*g->ngeoms);
         for (i=0; i<g->ngeoms; i++)
         {
             ret->geoms[i] = lwgeom_clone_deep(g->geoms[i]);
@@ -1226,7 +1226,7 @@ LWCOLLECTION* lwcollection_add_lwgeom(LWCOLLECTION *col, const LWGEOM *geom)
     {
         col->maxgeoms = 2;
         col->ngeoms = 0;
-        col->geoms = lwalloc(col->maxgeoms * sizeof(LWGEOM*));
+        col->geoms = (LWGEOM **)lwalloc(col->maxgeoms * sizeof(LWGEOM*));
     }
 
     /* Allocate more space if we need it */
