@@ -25,6 +25,7 @@
 #ifndef __GEODA_CENTER_RNG_H__
 #define __GEODA_CENTER_RNG_H__
 
+#include <vector>
 #include <boost/unordered_map.hpp>
 
 class Xoroshiro128Random
