@@ -9,16 +9,18 @@
 class GalElement {
 public:
 	GalElement();
-	void SetSizeNbrs(size_t sz, bool is_gal=false);
+
+    virtual long Size() const { return nbr.size(); }
+    virtual const std::vector<long>& GetNbrs() const;
+    virtual long operator[](size_t n) const { return nbr[n]; }
+
+    void SetSizeNbrs(size_t sz, bool is_gal=false);
 	void SetNbr(size_t pos, long n);
 	void SetNbr(size_t pos, long n, double w);
 	void SetNbrs(const GalElement& gal);
-	const std::vector<long>& GetNbrs() const;
 	const std::vector<double>& GetNbrWeights() const;
 	void SortNbrs();
     void ReverseNbrs();
-	long Size() const { return nbr.size(); }
-	long operator[](size_t n) const { return nbr[n]; }
 	double SpatialLag(const std::vector<double>& x) const;
 	double SpatialLag(const double* x) const;
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;

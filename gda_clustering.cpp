@@ -221,7 +221,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
 
     if (w == 0 ||  method > 4) return result;
 
-    if ((int)k > w->num_obs) return result;
+    //if ((int)k > w->num_obs) return result;
 
     // transform data
     int columns = (int)_data.size();
@@ -231,7 +231,6 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
             gda_transform_inplace(data[i], scale_method);
         }
     }
-
     redcap_wrapper redcap(k, w, data, method, distance_method, bound_vals, min_bound, rand_seed, cpu_threads);
     return redcap.GetClusters();
 }

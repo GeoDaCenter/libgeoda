@@ -248,7 +248,7 @@ namespace SpanningTreeClustering {
     public:
         int rows;
         int cols;
-        GalElement* w;
+        GeoDaWeight* w;
         double** dist_matrix;
         double** raw_data;
         const vector<bool>& undefs; // undef = any one item is undef in all variables
@@ -275,7 +275,7 @@ namespace SpanningTreeClustering {
                        double** distances,
                        double** data,
                        const vector<bool>& undefs,
-                       GalElement * w,
+                       GeoDaWeight * w,
                        int cpu_threads);
         virtual ~AbstractClusterFactory();
 
@@ -314,7 +314,7 @@ namespace SpanningTreeClustering {
                double** _distances,
                double** data,
                const vector<bool>& undefs,
-               GalElement * w,
+               GeoDaWeight * w,
                double* controls,
                double control_thres,
                int cpu_threads);
@@ -334,7 +334,7 @@ namespace SpanningTreeClustering {
                             double** _distances,
                             double** data,
                             const vector<bool>& undefs,
-                            GalElement * w,
+                            GeoDaWeight* w,
                             double* controls,
                             double control_thres,
                             int cpu_threads);
@@ -356,7 +356,7 @@ namespace SpanningTreeClustering {
                             double** _distances,
                             double** data,
                             const vector<bool>& undefs,
-                            GalElement * w,
+                            GeoDaWeight* w,
                             double* controls,
                             double control_thres,
                             int cpu_threads);
@@ -379,7 +379,7 @@ namespace SpanningTreeClustering {
                             double** _distances,
                             double** data,
                             const vector<bool>& undefs,
-                            GalElement * w,
+                            GeoDaWeight* w,
                             double* controls,
                             double control_thres,
                             int cpu_threads);
@@ -402,7 +402,7 @@ namespace SpanningTreeClustering {
                            double** _distances,
                            double** data,
                            const vector<bool>& undefs,
-                           GalElement * w,
+                           GeoDaWeight* w,
                            double* controls,
                            double control_thres,
                            bool init,
@@ -429,7 +429,7 @@ namespace SpanningTreeClustering {
                            double** _distances,
                            double** data,
                            const vector<bool>& undefs,
-                           GalElement * w,
+                           GeoDaWeight* w,
                            double* controls,
                            double control_thres,
                            int cpu_threads);
@@ -452,7 +452,7 @@ namespace SpanningTreeClustering {
                            double** _distances,
                            double** data,
                            const vector<bool>& undefs,
-                           GalElement * w,
+                           GeoDaWeight* w,
                            double* controls,
                            double control_thres,
                            int cpu_threads);
@@ -475,7 +475,7 @@ namespace SpanningTreeClustering {
                            double** _distances,
                            double** data,
                            const vector<bool>& undefs,
-                           GalElement * w,
+                           GeoDaWeight* w,
                            double* controls,
                            double control_thres,
                            int cpu_threads);

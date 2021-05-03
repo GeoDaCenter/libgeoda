@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string.h>
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -139,7 +140,8 @@ void GwtWeight::GetNbrStats()
         nnbrs_array.push_back(n_nbrs);
     }
     //double n_edges = e_dict.size() / 2.0;
-    sparsity = sum_nnbrs / (double)(num_obs * num_obs);
+    std::cout << sum_nnbrs << "/" << ((double)(num_obs) * num_obs) << std::endl;
+    sparsity = sum_nnbrs / ((double)num_obs * (double)num_obs);
 
     if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;
     std::sort(nnbrs_array.begin(), nnbrs_array.end());

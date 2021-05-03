@@ -21,7 +21,7 @@
 
 #include <algorithm>
 #include <vector>
-#include <map>
+#include <iostream>
 #include <list>
 #include <iterator>
 #include <cstdlib>
@@ -30,8 +30,9 @@
 #include <boost/unordered_map.hpp>
 #include <boost/graph/prim_minimum_spanning_tree.hpp>
 
-#include "../weights/GalWeight.h"
 #include "redcap.h"
+
+#define GET_DISTANCE(m, r, c) (r==c? 0 : (r < c ? m[c][r] : m[r][c]))
 
 using namespace std;
 using namespace boost;
@@ -553,7 +554,7 @@ pair<Tree*, Tree*> Tree::GetSubTrees()
 // AbstractClusterFactory
 //
 ////////////////////////////////////////////////////////////////////////////////
-AbstractClusterFactory::AbstractClusterFactory(int row, int col,  double** _distances, double** _data, const vector<bool>& _undefs, GalElement * _w, int cpu_threads)
+AbstractClusterFactory::AbstractClusterFactory(int row, int col,  double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight * _w, int cpu_threads)
   : rows(row), cols(col),w(_w), dist_matrix(_distances), raw_data(_data), undefs(_undefs), cpu_threads(cpu_threads)
 {
 }
@@ -592,11 +593,11 @@ void AbstractClusterFactory::init()
 
     for (int i=0; i<rows; i++) {
         orig = nodes[i];
-        const vector<long>& nbrs = w[i].GetNbrs();
-        for (int j=0; j<w[i].Size(); j++) {
+        const vector<long>& nbrs = w->GetNeighbors(i);
+        for (int j=0; j<nbrs.size(); j++) {
             int nbr = (int)nbrs[j];
             dest = nodes[nbr];
-            length = dist_matrix[orig->id][dest->id];
+            length = GET_DISTANCE(dist_matrix, orig->id, dest->id);
 
             if (access_dict.find(make_pair(i, nbr)) == access_dict.end()) {
                 edges.push_back(new Edge(orig, dest, length));
@@ -680,7 +681,7 @@ void AbstractClusterFactory::Partitioning(int k)
 // Skater
 //
 ////////////////////////////////////////////////////////////////////////////////
-Skater::Skater(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres, int cpu_threads)
+Skater::Skater(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight* w, double* _controls, double _control_thres, int cpu_threads)
 : AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w, cpu_threads)
 {
     controls = _controls;
@@ -698,11 +699,12 @@ void Skater::Clustering()
     Graph g(rows);
     boost::unordered_map<pair<int, int>, bool> access_dict;
     for (int i=0; i<rows; i++) {
-        for (int j=0; j<w[i].Size(); j++) {
-            if (access_dict.find(make_pair(i, w[i][j])) == access_dict.end()) {
-                boost::add_edge(i, w[i][j], dist_matrix[i][ w[i][j] ], g);
-                access_dict[make_pair(i, w[i][j])] = true;
-                access_dict[make_pair(w[i][j], i)] = true;
+        const std::vector<long>& nbrs = w->GetNeighbors(i);
+        for (int j=0; j<nbrs.size(); j++) {
+            if (access_dict.find(make_pair(i, nbrs[j])) == access_dict.end()) {
+                boost::add_edge(i, nbrs[j], GET_DISTANCE(dist_matrix, i, nbrs[j]), g);
+                access_dict[make_pair(i, nbrs[j])] = true;
+                access_dict[make_pair(nbrs[j], i)] = true;
             }
         }
     }
@@ -761,7 +763,7 @@ void Skater::Clustering()
 // 1 FirstOrderSLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FirstOrderSLKRedCap::FirstOrderSLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres, int cpu_threads)
+FirstOrderSLKRedCap::FirstOrderSLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight* w, double* _controls, double _control_thres, int cpu_threads)
 : AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w, cpu_threads)
 {
     controls = _controls;
@@ -837,7 +839,7 @@ void FirstOrderSLKRedCap::Clustering()
 // each merge.
 //
 ////////////////////////////////////////////////////////////////////////////////
-FirstOrderALKRedCap::FirstOrderALKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres, int cpu_threads)
+FirstOrderALKRedCap::FirstOrderALKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight * w, double* _controls, double _control_thres, int cpu_threads)
 : AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w, cpu_threads)
 {
     controls = _controls;
@@ -861,7 +863,7 @@ void FirstOrderALKRedCap::Clustering()
 // 3 FirstOrderCLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FirstOrderCLKRedCap::FirstOrderCLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres, int cpu_threads)
+FirstOrderCLKRedCap::FirstOrderCLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight * w, double* _controls, double _control_thres, int cpu_threads)
 : AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w, cpu_threads)
 {
     controls = _controls;
@@ -884,7 +886,7 @@ void FirstOrderCLKRedCap::Clustering()
 // 4 FullOrderSLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderSLKRedCap::FullOrderSLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres, int cpu_threads)
+FullOrderSLKRedCap::FullOrderSLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight * w, double* _controls, double _control_thres, int cpu_threads)
 : FullOrderALKRedCap(rows, cols, _distances, _data, _undefs, w, _controls, _control_thres, false, cpu_threads)
 {
     init();
@@ -916,8 +918,8 @@ double FullOrderSLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         int d_endpos = clst_startpos[d_id] + clst_nodenum[d_id];
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                if (dist_matrix[clst_ids[i]] [clst_ids[j]] < new_dist) {
-                    new_dist = dist_matrix[clst_ids[i]] [clst_ids[j]];
+                if (GET_DISTANCE(dist_matrix, clst_ids[i], clst_ids[j]) < new_dist) {
+                    new_dist = GET_DISTANCE(dist_matrix, clst_ids[i], clst_ids[j]);
                 }
             }
         }
@@ -930,7 +932,7 @@ double FullOrderSLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
 // 5 FullOrderALKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderALKRedCap::FullOrderALKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs,  GalElement * w, double* _controls, double _control_thres, bool init_flag, int cpu_threads)
+FullOrderALKRedCap::FullOrderALKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs,  GeoDaWeight * w, double* _controls, double _control_thres, bool init_flag, int cpu_threads)
 : AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w, cpu_threads)
 {
     controls = _controls;
@@ -1143,7 +1145,7 @@ double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
 
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
+                sumval_c_d += GET_DISTANCE(dist_matrix, clst_ids[i], clst_ids[j]);
             }
         }
         new_dist = (d_c_o * clst_nodenum[o_id]  + (sumval_c_d / clst_nodenum[cur_id])) / (clst_nodenum[o_id] + clst_nodenum[d_id]);
@@ -1169,7 +1171,7 @@ Edge* FullOrderALKRedCap::GetShortestEdge(vector<Edge*>& _edges, int start, int 
 // 6 FullOrderCLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderCLKRedCap::FullOrderCLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres, int cpu_threads)
+FullOrderCLKRedCap::FullOrderCLKRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GeoDaWeight * w, double* _controls, double _control_thres, int cpu_threads)
 : FullOrderALKRedCap(rows, cols, _distances, _data, _undefs, w, _controls, _control_thres, false, cpu_threads)
 {
     init();
@@ -1204,8 +1206,8 @@ double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
                 int n1 = clst_ids[i];
                 int n2 = clst_ids[j];
-                if (dist_matrix[n1][n2] > new_dist) { // n1 and n2 now connect so use dist_matrix
-                    new_dist = dist_matrix[n1][n2];
+                if (GET_DISTANCE(dist_matrix, n1, n2) > new_dist) { // n1 and n2 now connect so use dist_matrix
+                    new_dist = GET_DISTANCE(dist_matrix, n1, n2);
                 }
             }
         }
@@ -1216,7 +1218,7 @@ double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderWardRedCap::FullOrderWardRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs,  GalElement * w, double* _controls, double _control_thres, int cpu_threads)
+FullOrderWardRedCap::FullOrderWardRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs,  GeoDaWeight * w, double* _controls, double _control_thres, int cpu_threads)
 : FullOrderALKRedCap(rows, cols, _distances, _data, _undefs, w, _controls, _control_thres, false, cpu_threads)
 {
     init();
@@ -1347,11 +1349,17 @@ void FullOrderWardRedCap::Clustering()
                 if (!access_flag[tmp_id] && tmp_id != dest_id && tmp_id != orig_id) { // any node[i] not (o,d)
                     // update dist_matrix, from tmp_id to (o,d)
                     int new_nodenum = cluster_nodenum[orig_id] + cluster_nodenum[dest_id] + cluster_nodenum[tmp_id];
-                    double d_c_o = dist_matrix[tmp_id][orig_id];
-                    double d_c_d = dist_matrix[tmp_id][dest_id];
+                    double d_c_o = GET_DISTANCE(dist_matrix, tmp_id, orig_id);
+                    double d_c_d = GET_DISTANCE(dist_matrix, tmp_id, dest_id);
                     double update_dist = (d_c_o * (cluster_nodenum[orig_id] + cluster_nodenum[tmp_id]) + d_c_d * (cluster_nodenum[dest_id] + cluster_nodenum[tmp_id]) - min_dist *cluster_nodenum[tmp_id]) / new_nodenum;
-                    dist_matrix[tmp_id][orig_id] = update_dist;
-                    dist_matrix[orig_id][tmp_id] = update_dist;
+                    if (tmp_id < orig_id) {
+                        dist_matrix[orig_id][tmp_id] = update_dist;
+                    } else {
+                        dist_matrix[tmp_id][orig_id] = update_dist;
+                    }
+                    if (tmp_id == orig_id) {
+                        std::cout << "errror!" << std::endl;
+                    }
                     bool d_is_nbr = dist_dict[tmp_id].find(dest_id) != dist_dict[tmp_id].end();
                     bool o_is_nbr = dist_dict[tmp_id].find(orig_id) != dist_dict[tmp_id].end();
                     if (d_is_nbr || o_is_nbr) { // node[i] is neighbor of (o,d)

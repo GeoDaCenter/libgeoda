@@ -13,7 +13,7 @@
 */
 LWGEOM* lwgeom_from_wkb_state(wkb_parse_state *s);
 
-static char *lwgeomTypeName[] =
+static const char *lwgeomTypeName[] =
         {
                 "Unknown",
                 "Point",

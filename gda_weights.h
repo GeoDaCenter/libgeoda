@@ -38,6 +38,17 @@ GeoDaWeight* gda_knn_weights(AbstractGeoDa* geoda, unsigned int k,
                              bool use_kernel_diagnals,
                              const std::string& polyid);
 
+GeoDaWeight* gda_knn_weights_sub(AbstractGeoDa* geoda, unsigned int k, int start, int end,
+                             double power,
+                             bool is_inverse,
+                             bool is_arc,
+                             bool is_mile,
+                             const std::string& kernel,
+                             double bandwidth,
+                             bool adaptive_bandwidth,
+                             bool use_kernel_diagnals,
+                             const std::string& polyid);
+
 double gda_min_distthreshold(AbstractGeoDa* geoda, bool is_arc, bool is_mile);
 
 GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
