@@ -3,7 +3,6 @@
 #include <string>
 #include <sstream>
 #include <regex>
-#include <filesystem>
 #include <map>
 
 #ifdef _MSC_VER
