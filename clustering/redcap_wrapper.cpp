@@ -77,6 +77,7 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
                                                 w, _bound_vals, min_bound, cpu_threads);
             }
             if (redcap) {
+                if (k==0) k = num_obs;
                 redcap->Partitioning(k);
                 cluster_ids = redcap->GetRegions();
             }
