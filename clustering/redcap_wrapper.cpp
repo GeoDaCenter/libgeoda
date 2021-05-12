@@ -24,9 +24,7 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
     if (w) {
         num_obs = w->num_obs;
 
-        GalElement* gal = 0;
-        gal = Gda::GetGalElement(w);
-        if (gal) {
+        {
             // get control variable
             double *_bound_vals = 0;
             if ((int)bound_vals.size() == num_obs) {
@@ -56,33 +54,30 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             double* weight = new double[n_cols];
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
-            double** ragged_distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
-            double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
-            if (ragged_distances) {
-                for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
-                free(ragged_distances);
-            }
+            double** distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
+            //double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
 
             // call redcap
             std::vector<bool> undefs(num_obs, false); // not used
             AbstractClusterFactory* redcap = 0;
             if (redcap_method == 0) {
                 redcap = new FirstOrderSLKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                 gal, _bound_vals, min_bound, cpu_threads);
+                                                 w, _bound_vals, min_bound, cpu_threads);
             } else if (redcap_method == 1) {
                 redcap = new FullOrderCLKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                 gal, _bound_vals, min_bound, cpu_threads);
+                                                 w, _bound_vals, min_bound, cpu_threads);
             } else if (redcap_method == 2) {
                 redcap = new FullOrderALKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                gal, _bound_vals, min_bound, true, cpu_threads);
+                                                w, _bound_vals, min_bound, true, cpu_threads);
             } else if (redcap_method == 3) {
                 redcap = new FullOrderSLKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                gal, _bound_vals, min_bound, cpu_threads);
+                                                w, _bound_vals, min_bound, cpu_threads);
             } else if (redcap_method == 4) {
                 redcap = new FullOrderWardRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                gal, _bound_vals, min_bound, cpu_threads);
+                                                w, _bound_vals, min_bound, cpu_threads);
             }
             if (redcap) {
+                if (k==0) k = num_obs;
                 redcap->Partitioning(k);
                 cluster_ids = redcap->GetRegions();
             }
@@ -90,8 +85,8 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             if (weight) delete[] weight;
             if (_bound_vals) delete[] _bound_vals;
             if (distances) {
-                for (int i = 1; i < num_obs; i++) delete[] distances[i];
-                delete[] distances;
+                for (int i = 1; i < num_obs; i++) free(distances[i]);
+                free(distances);
             }
             if (matrix) {
                 for (int i = 0; i < num_obs; ++i) delete[] matrix[i];

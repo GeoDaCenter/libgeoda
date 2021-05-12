@@ -169,4 +169,10 @@ std::vector<std::vector<double> > gda_neighbor_match_test(AbstractGeoDa* geoda, 
                                                            const std::string& scale_method,
                                                            const std::string& dist_type);
 
+
+std::vector<std::vector<double> > gda_neighbor_match_test(GeoDaWeight *sw, unsigned int knn,
+                                                          const std::vector<std::vector<double> >& _data,
+                                                          const std::string& scale_method,
+                                                          const std::string& dist_type);
+
 #endif

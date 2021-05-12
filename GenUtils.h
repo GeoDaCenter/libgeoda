@@ -26,11 +26,30 @@
 #include <map>
 #include <algorithm>
 
+class GeoDaWeight;
 
 using namespace std;
 
 namespace StringUtils {
     int utf8_strlen(const string& str);
+}
+
+namespace GdaAlgs {
+    bool RateStandardizeEB(const int nObs, const double* P, const double* E,
+                           double* results, std::vector<bool>& undefined);
+    bool RateSmoother_RawRate(int obs, double *P, double *E,
+                              double *results, std::vector<bool>& undefined);
+    bool RateSmoother_ExcessRisk(int obs, double *P, double *E,
+                                 double *results,
+                                 std::vector<bool>& undefined);
+    bool RateSmoother_EBS(int obs, double *P, double *E,
+                          double *results, std::vector<bool>& undefined);
+    bool RateSmoother_SEBS(int obs, GeoDaWeight* w,
+                           double *P, double *E,
+                           double *results, std::vector<bool>& undefined);
+    bool RateSmoother_SRS(int obs, GeoDaWeight* w,
+                          double *P, double *E,
+                          double *results, std::vector<bool>& undefined);
 }
 
 namespace DbfFileUtils {

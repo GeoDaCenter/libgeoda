@@ -193,6 +193,41 @@ GwtWeight* SpatialIndAlgs::knn_build(const std::vector<gda::PointContents*>& poi
 	return gwt;
 }
 
+GwtWeight* SpatialIndAlgs::knn_build_sub(const std::vector<gda::PointContents*>& points,
+                                     int nn, int start, int end,
+                                     bool is_arc, bool is_mi,
+                                     bool is_inverse, double power,
+                                     const std::string& kernel,
+                                     double bandwidth,
+                                     bool adaptive_bandwidth,
+                                     bool use_kernel_diagnals)
+{
+    size_t nobs = points.size();
+    GwtWeight* gwt = 0;
+    if (is_arc) {
+        rtree_pt_3d_t rtree;
+        {
+            vector<pt_3d> pts;
+            {
+                vector<pt_lonlat> ptll(nobs);
+                for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(points[i]->x, points[i]->y);
+                to_3d_centroids(ptll, pts);
+            }
+            fill_pt_rtree(rtree, pts);
+        }
+        gwt = knn_build(rtree, nn, true, is_mi, is_inverse, power, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
+
+    } else {
+        rtree_pt_2d_t rtree;
+            vector<pt_2d> pts(nobs);
+            for (size_t i=0; i<nobs; ++i) pts[i] = pt_2d(points[i]->x, points[i]->y);
+            fill_pt_rtree(rtree, pts);
+        gwt = knn_build_sub(rtree, pts, nn, start, end, is_inverse, power, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
+
+    }
+    return gwt;
+}
+
 void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const std::string& kernel, bool use_kernel_diagnals)
 {
     // apply kernel
@@ -230,7 +265,6 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 	Wp->symmetry_checked = true;
 	Wp->gwt = new GwtElement[Wp->num_obs];
 
-	int cnt=0;
 	const int k=nn+1;
     double bandwidth = bandwidth_;
     bool adaptive_bandwidth = adaptive_bandwidth_;
@@ -239,13 +273,14 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
+        int cnt=0;
 		const pt_2d_val& v = *it;
 		size_t obs = v.second;
         // each point "v" with index "obs"
 		vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-		e.alloc(q.size());
+        e.alloc( q.size() > nn ?  nn : q.size());
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
 			if (kernel.empty() && w.second == v.second)
@@ -259,6 +294,9 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
             neigh.weight =  d;
 			e.Push(neigh);
 			++cnt;
+            if (cnt >= nn) {
+                break;
+            }
 		}
         if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.empty()) {
             GwtNeighbor* nbrs = e.dt();
@@ -286,6 +324,67 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 	return Wp;
 }
 
+GwtWeight* SpatialIndAlgs::knn_build_sub(const rtree_pt_2d_t& rtree,vector<pt_2d>& pts, int nn, int start, int end, bool is_inverse, double power, const std::string& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
+{
+    GwtWeight* Wp = new GwtWeight;
+    Wp->num_obs = end - start + 1;
+    Wp->is_symmetric = false;
+    Wp->symmetry_checked = true;
+    Wp->gwt = new GwtElement[end - start + 1];
+
+    int cnt=0;
+    const int k=nn+1;
+    double bandwidth = bandwidth_;
+    bool adaptive_bandwidth = adaptive_bandwidth_;
+
+    for (int i = start; i < end; i ++) {
+        const pt_2d& p = pts[i];
+        size_t obs = i - start;
+        // each point "v" with index "obs"
+        vector<pt_2d_val> q;
+        rtree.query(bgi::nearest(p, k), std::back_inserter(q));
+        GwtElement& e = Wp->gwt[obs];
+        e.alloc(q.size());
+        double local_bandwidth = 0;
+        BOOST_FOREACH(pt_2d_val const& w, q) {
+                        if (kernel.empty() && w.second == i)
+                            continue;
+                        GwtNeighbor neigh;
+                        neigh.nbx = w.second;
+                        double d = bg::distance(p, w.first);
+                        if (bandwidth_ ==0 && d > bandwidth) bandwidth = d;
+                        if (d > local_bandwidth) local_bandwidth = d;
+                        if (is_inverse) d = pow(d, power);
+                        neigh.weight =  d;
+                        e.Push(neigh);
+                        ++cnt;
+                    }
+        if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.empty()) {
+            GwtNeighbor* nbrs = e.dt();
+            for (int j=0; j<e.Size(); j++) {
+                nbrs[j].weight = nbrs[j].weight / local_bandwidth;
+            }
+        }
+    }
+
+    if (!adaptive_bandwidth && bandwidth > 0 && !kernel.empty()) {
+        // use max knn distance as bandwidth
+        for (int i=start; i<end; i++) {
+            size_t obs = i - start;
+            GwtElement& e = Wp->gwt[obs];
+            GwtNeighbor* nbrs = e.dt();
+            for (int j=0; j<e.Size(); j++) {
+                nbrs[j].weight = nbrs[j].weight / bandwidth;
+            }
+        }
+    }
+    if (!kernel.empty()) {
+        apply_kernel(Wp, kernel, use_kernel_diagnals);
+    }
+
+    return Wp;
+}
+
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 					 bool is_arc, bool is_mi,  bool is_inverse, double power, const std::string& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
@@ -297,7 +396,6 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 	Wp->symmetry_checked = true;
 	Wp->gwt = new GwtElement[Wp->num_obs];
 
-	int cnt=0;
 	const int k=nn+1;
     double bandwidth = bandwidth_;
     bool adaptive_bandwidth = adaptive_bandwidth_;
@@ -307,12 +405,13 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
+        int cnt=0;
 		const pt_3d_val& v = *it;
 		size_t obs = v.second;
 		vector<pt_3d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-		e.alloc(q.size());
+        e.alloc( q.size() > nn ?  nn : q.size());
 		double lon_v, lat_v;
 		double x_v, y_v;
 		if (is_arc) {
@@ -352,6 +451,9 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 
 			e.Push(neigh);
 			++cnt;
+            if (cnt >= nn) {
+                break;
+            }
 		}
         if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.empty()) {
             GwtNeighbor* nbrs = e.dt();
@@ -634,6 +736,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 		}
 
 		GwtElement& e = Wp->gwt[obs];
+        if (!kernel.empty()) lcnt += 1;
 		e.alloc(lcnt);
 		BOOST_FOREACH(pt_2d_val const& w, l) {
 			GwtNeighbor neigh;
@@ -645,6 +748,13 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 			e.Push(neigh);
 			++cnt;
 		}
+        if (!kernel.empty()) {
+            // add diagonal item: ii
+            GwtNeighbor neigh;
+            neigh.nbx = obs;
+            neigh.weight = 1;
+            e.Push(neigh);
+        }
 	}
 
     if (!kernel.empty()) {
@@ -733,6 +843,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 			}
 		}
 		GwtElement& e = Wp->gwt[obs];
+        if (!kernel.empty()) lcnt += 1;
 		e.alloc(lcnt);
 		BOOST_FOREACH(pt_3d_val const& w, l) {
 			GwtNeighbor neigh;
@@ -754,6 +865,13 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 			e.Push(neigh);
 			++cnt;
 		}
+        if (!kernel.empty()) {
+            // add diagonal item: ii
+            GwtNeighbor neigh;
+            neigh.nbx = obs;
+            neigh.weight = 1;
+            e.Push(neigh);
+        }
 	}
 
     if (!kernel.empty()) {

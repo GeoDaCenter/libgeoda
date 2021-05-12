@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string.h>
 #include <iomanip>
+#include <iostream>
 #include <boost/unordered_map.hpp>
 
 #ifdef _WIN32
@@ -287,6 +288,7 @@ void GalWeight::GetNbrStats()
         nnbrs_array.push_back(n_nbrs);
     }
     //double n_edges = e_dict.size() / 2.0;
+    std::cout << sum_nnbrs << "/" << (double)(num_obs * num_obs) << std::endl;
     sparsity = sum_nnbrs / (double)(num_obs * num_obs);
 
     if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;
@@ -433,7 +435,7 @@ GalElement* Gda::GetGalElement(GeoDaWeight* w)
     if (w->weight_type == GeoDaWeight::gal_type) {
         GalWeight *gal_w = dynamic_cast<GalWeight *>(w);
         gal = gal_w->gal;
-    } else {
+    } else if (w->weight_type == GeoDaWeight::gwt_type) {
         GwtWeight *gwt_w = dynamic_cast<GwtWeight *>(w);
         GwtElement *gwt = gwt_w->gwt;
         gal = Gda::Gwt2Gal(gwt, gwt_w->num_obs);

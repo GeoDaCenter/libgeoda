@@ -114,6 +114,37 @@ void UniGeary::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighb
     permutedSA[perm] = localGearyPermuted;
 }
 
+void UniGeary::PermLocalSA(int cnt, int perm, int numNeighbors, const int* permNeighbors,
+        std::vector<double>& permutedSA)
+{
+    int validNeighbors = 0;
+    double permutedLag = 0;
+    double permutedLagSquare = 0;
+
+    // use permutation to compute the lag
+    // compute the lag for binary weights
+    for (int cp=0; cp<numNeighbors; cp++) {
+        int nb = permNeighbors[cp];
+        if (nb >= cnt) nb = nb + 1;
+        if (!undefs[nb]) {
+            permutedLag += data[nb];
+            permutedLagSquare += data_square[nb];
+            validNeighbors ++;
+        }
+    }
+
+    //NOTE: we shouldn't have to row-standardize or
+    // multiply by data1[cnt]
+    if (validNeighbors > 0 && row_standardize) {
+        permutedLag /= validNeighbors;
+        permutedLagSquare /= validNeighbors;
+
+    }
+
+    const double localGearyPermuted = data_square[cnt] - 2.0 * data[cnt] * permutedLag + permutedLagSquare;
+    permutedSA[perm] = localGearyPermuted;
+}
+
 uint64_t UniGeary::CountLargerSA(int cnt, const std::vector<double>& permutedSA)
 {
     double permGearySum = 0, permGearyMean = 0;

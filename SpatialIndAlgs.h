@@ -51,6 +51,21 @@ GwtWeight* knn_build(const rtree_pt_3d_t& rtree, int nn=6,
                      double bandwidth = 0,
                      bool adaptive_bandwidth = false,
                      bool use_kernel_diagnals = false);
+
+GwtWeight* knn_build_sub(const std::vector<gda::PointContents*>& points,
+                  int nn, int start, int end,
+                  bool is_arc, bool is_mi,
+                  bool is_inverse, double power,
+                  const std::string& kernel,
+                  double bandwidth,
+                  bool adaptive_bandwidth,
+                  bool use_kernel_diagnals);
+
+GwtWeight* knn_build_sub(const rtree_pt_2d_t& rtree,
+                         std::vector<pt_2d>& pts, int nn, int start, int end,
+                         bool is_inverse, double power, const std::string& kernel,
+                         double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals);
+
 double est_thresh_for_num_pairs(const rtree_pt_2d_t& rtree, double num_pairs);
 double est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree, double avg_n);
 double est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree, double th,
