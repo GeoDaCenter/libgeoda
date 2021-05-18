@@ -568,6 +568,17 @@ SHPOpen( const char * pszLayer, const char * pszAccess )
     return SHPOpenLL( pszLayer, pszAccess, &sHooks );
 }
 
+SHPHandle SHPAPI_CALL
+SHPOpenEx( const char * pszLayer, const char * pszAccess )
+
+{
+    SAHooks sHooks;
+
+    SASetupDefaultHooks( &sHooks );
+
+    return SHPOpenLLEx( pszLayer, pszAccess, &sHooks, true );
+}
+
 /************************************************************************/
 /*                      SHPGetLenWithoutExtension()                     */
 /************************************************************************/

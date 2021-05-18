@@ -566,7 +566,7 @@ void GeoDa::ReadShapefile(const char* fpath)
 {
 
 
-    SHPHandle hSHP = SHPOpen(fpath, "rb" );
+    SHPHandle hSHP = SHPOpenEx(fpath, "rb" );
     if( hSHP == NULL ) {
         // unable to open, throw error
         return;
