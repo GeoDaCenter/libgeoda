@@ -53,7 +53,7 @@ public:
 	static bool HasIsolates(GalElement *gal, int num_obs);
     
 	virtual GalWeight& operator=(const GalWeight& gw);
-    
+
 	virtual bool HasIsolates() { return HasIsolates(gal, num_obs); }
     
     virtual void Update(const std::vector<bool>& undefs);
@@ -65,7 +65,7 @@ public:
     virtual const  std::vector<double> GetNeighborWeights(int obs_idx);
 
     virtual void GetNbrStats();
-    
+
     virtual int GetNbrSize(int obs_idx);
     
     virtual double SpatialLag(int obs_idx,

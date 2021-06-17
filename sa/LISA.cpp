@@ -443,7 +443,7 @@ void LISA::PermCalcPseudoP_threaded()
 void LISA::PermCalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
-        if (undefs[cnt]) {
+        if (undefs[cnt] || weights->IsMasked(cnt) == false) {
             sig_cat_vec[cnt] = 6; // undefined
             continue;
         }
@@ -549,7 +549,7 @@ void LISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 #endif
 
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
-        if (undefs[cnt]) {
+        if (undefs[cnt] || weights->IsMasked(cnt) == false) {
             sig_cat_vec[cnt] = 6; // undefined
             continue;
         }

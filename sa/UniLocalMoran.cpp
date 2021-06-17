@@ -50,7 +50,7 @@ UniLocalMoran::UniLocalMoran(int num_obs,
 
 void UniLocalMoran::ComputeLoalSA() {
     for (int i=0; i<num_obs; i++) {
-        if (undefs[i]) {
+        if (undefs[i] || weights->IsMasked(i) == false) {
             lag_vec[i] = 0;
             lisa_vec[i] = 0;
             cluster_vec[i] = CLUSTER_UNDEFINED;

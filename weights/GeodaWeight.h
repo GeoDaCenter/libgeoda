@@ -42,6 +42,7 @@ public:
     virtual double GetMedianNbrs() const;
     virtual int    GetNumObs() const;
     virtual bool   IsInternalUse() const { return is_internal_use; }
+    virtual bool   IsMasked(int obs_idx) { return true;}
 
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
