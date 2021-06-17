@@ -415,6 +415,8 @@ struct tagSHPObject
 SHPHandle SHPAPI_CALL
       SHPOpen( const char * pszShapeFile, const char * pszAccess );
 SHPHandle SHPAPI_CALL
+        SHPOpenEx( const char * pszShapeFile, const char * pszAccess );
+SHPHandle SHPAPI_CALL
       SHPOpenLL( const char *pszShapeFile, const char *pszAccess,
                  SAHooks *psHooks );
 SHPHandle SHPAPI_CALL

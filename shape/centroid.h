@@ -20,7 +20,7 @@ typedef ttmath::Big<TTMATH_BITS(32), TTMATH_BITS(128)> DD;
 //typedef ttmath::Big<TTMATH_BITS(32), TTMATH_BITS(256)> DD;
 //typedef ttmath::Big<TTMATH_BITS(64), TTMATH_BITS(256)> DD;
 
-double DP_SAFE_EPSILON =  1e-15;
+const static double DP_SAFE_EPSILON =  1e-15;
 
 enum {
     RIGHT = -1,

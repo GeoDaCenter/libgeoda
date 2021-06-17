@@ -146,8 +146,8 @@ protected:
 
 #ifdef __JSGEODA__
     // for caching in wasgeoda
-    // 1k permutations * 2000 obs * 4 bytes
-    // 8000Kbytes
+    // 1k permutations * 2000 obs * 4 bytes * 10 nn
+    // 80,000 Kbytes
     static std::map<std::string, std::vector<std::vector<int> > > cached_perm_nbrs;
     static std::map<std::string, bool> has_cached_perm;
 #endif
