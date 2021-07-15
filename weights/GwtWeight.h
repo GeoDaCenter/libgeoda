@@ -73,6 +73,10 @@ public:
                         const char* layer_name,
                         const char* id_var_name,
                         const std::vector<std::string>& id_vec);
+
+    virtual void SetNeighbors(int id, const std::vector<int>& nbr_ids);
+
+    virtual void SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w);
 };
 
 namespace Gda {

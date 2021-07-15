@@ -43,9 +43,11 @@ private:
 class GalWeight : public GeoDaWeight {
 public:
 	GalElement* gal;
-    
+
 	GalWeight() : gal(0) { weight_type = gal_type; }
-    
+
+	GalWeight(int num_obs);
+
 	GalWeight(const GalWeight& gw);
     
 	virtual ~GalWeight() { if (gal) delete [] gal; gal = 0; }
@@ -79,6 +81,10 @@ public:
                               const char* layer_name,
                               const char* id_var_name,
                               const std::vector<std::string>& id_vec);
+
+    virtual void SetNeighbors(int id, const std::vector<int>& nbr_ids);
+
+    virtual void SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w);
 };
 
 namespace Gda {

@@ -33,6 +33,11 @@ public:
                               const char* layer_name,
                               const char* id_var_name,
                               const std::vector<std::string>& id_vec) = 0;
+
+    virtual void SetNeighbors(int id, const std::vector<int>& nbr_ids) = 0;
+
+    virtual void SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w) = 0;
+    
     // functions:
     virtual bool   IsSymmetric() const;
     virtual double GetSparsity() const;

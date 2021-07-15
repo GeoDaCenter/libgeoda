@@ -92,6 +92,16 @@ const std::vector<double> GwtWeight::GetNeighborWeights(int obs_idx)
     return gwt[obs_idx].GetNbrWeights();
 }
 
+void GwtWeight::SetNeighbors(int id, const std::vector<int>& nbr_ids)
+{
+    // not implemented, since GAL will be used to create weights internally 
+}
+
+void GwtWeight::SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w)
+{
+    // not implemented, since GAL will be used to create weights internally 
+}
+
 bool GwtWeight::CheckNeighbor(int obs_idx, int nbr_idx)
 {
     return gwt[obs_idx].Check(nbr_idx);
@@ -140,7 +150,7 @@ void GwtWeight::GetNbrStats()
         nnbrs_array.push_back(n_nbrs);
     }
     //double n_edges = e_dict.size() / 2.0;
-    std::cout << sum_nnbrs << "/" << ((double)(num_obs) * num_obs) << std::endl;
+    //std::cout << sum_nnbrs << "/" << ((double)(num_obs) * num_obs) << std::endl;
     sparsity = sum_nnbrs / ((double)num_obs * (double)num_obs);
 
     if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;

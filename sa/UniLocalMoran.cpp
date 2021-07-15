@@ -31,8 +31,8 @@ UniLocalMoran::UniLocalMoran(int num_obs,
     labels.push_back("Not significant");
     labels.push_back("High-High");
     labels.push_back("Low-Low");
-    labels.push_back("High-Low");
     labels.push_back("Low-High");
+    labels.push_back("High-Low");
     labels.push_back("Undefined");
     labels.push_back("Isolated");
 
