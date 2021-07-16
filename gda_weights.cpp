@@ -187,7 +187,7 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
     return (GeoDaWeight*)poW;
 }
 
-GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_vec)
+GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::string>& id_vec)
 {
     std::ifstream file;
 #ifdef __WIN32__
@@ -197,6 +197,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
 #endif
 
     if (!(file.is_open() && file.good())) {
+        std::cout << "not open" << std::endl;
         return 0;
     }
 
@@ -222,6 +223,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
         // sub_match is the first parenthesized expression.
         int n_items = what.size();
         if (n_items != 5) {
+            std::cout << "n_items != 5" << std::endl;
             return 0;
         }
         std::string num1_str = what.str(1);
@@ -233,6 +235,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
         num2 = std::stoi(num2_str);
     } else {
         // header format is illegal
+        std::cout << "Error: header format is illegal" << std::endl;
         return 0;
     }
 
@@ -246,59 +249,23 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
         }
     }
 
+    if (!id_vec.empty() && num_obs != id_vec.size()) {
+		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
+        return 0;
+	}
+
     std::map<std::string, int> id_map;
 
     if (use_rec_order) {
-        // we need to traverse through every second line of the file and
-        // record the max and min values.  So long as the max and min
-        // values are such that num_obs = (max - min) + 1, we will assume
-        // record order is valid.
-        int min_val = std::numeric_limits<int>::max();
-        int max_val = 0;
-
-        while (!file.eof()) {
-            int  obs=0, num_neigh=0;
-            // get next non-blank line
-            str = "";
-            while (str.empty() && !file.eof()) {
-                getline(file, str);
-                line_cnt++;
-            }
-            if (file.eof()) {
-                continue;
-            }
-            std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
-            ss >> obs >> num_neigh;
-            if (obs < min_val) {
-                min_val = obs;
-            } else if (obs > max_val) {
-                max_val = obs;
-            }
-            if (num_neigh > 0) { // ignore the list of neighbors
-                // get next non-blank line
-                str = "";
-                while (str.empty() && !file.eof()) {
-                    getline(file, str);
-                    line_cnt++;
-                }
-                if (file.eof()) continue;
-            }
-        }
-        if (max_val - min_val != num_obs - 1) {
-            // num_obs doesn't match
-            return 0;
-        }
-        for (int i=0; i<num_obs; i++) {
-            std::string iid;
-            iid = std::to_string(i+min_val);
-            id_map[ iid ] = i;
-        }
-    } else {
         // using sequential ids 0,1,2,...
         for (int i=0; i<num_obs; i++) {
             std::string str_id;
             str_id = std::to_string(i);
             id_map[ str_id ] = i;
+        }
+    } else {
+        for (int i=0; i<num_obs; i++) {
+            id_map[ id_vec[i] ] = i;
         }
     }
 
@@ -327,6 +294,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
         it = id_map.find(obs);
         if (it == id_map.end()) {
             delete [] gal;
+            std::cout << "Error: observation id (" << obs << ") doesn't match input vector of ids." << std::endl;
             return 0; // observation doesn't match
         }
         gal_obs = (*it).second; // value
@@ -348,6 +316,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
                 it = id_map.find(neigh);
                 if (it == id_map.end()) {
                     delete [] gal;
+                    std::cout << "observation doesn't match2" << std::endl;
                     return 0; // observation doesn't match
                 }
                 long n_id = (*it).second; // value of id_map[neigh];
@@ -363,10 +332,14 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_v
 
     GalWeight *rw = new GalWeight();
     rw->gal = gal;
-    return rw;
+    rw->num_obs = num_obs;
+    rw->is_symmetric = true;
+    rw->id_field = key_field;
+    rw->GetNbrStats();
+    return (GeoDaWeight*)rw;
 }
 
-GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_vec)
+GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::string>& id_vec)
 {
     std::ifstream file;
 #ifdef __WIN32__
@@ -386,7 +359,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_v
 	bool use_rec_order = false;
 	std::string str;
 	getline(file, str);
-	std::stringstream ss(str, stringstream::in | stringstream::out);
+	std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
 	
 	int num1 = 0;
 	int num2 = 0;
@@ -405,6 +378,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_v
         // sub_match is the first parenthesized expression.
         int n_items = what.size();
         if (n_items != 5) {
+            std::cout << "Error: header format is illegal" << std::endl;
             return 0;
         }
         std::string num1_str = what.str(1);
@@ -416,6 +390,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_v
         num2 = std::stoi(num2_str);
     } else {
         // header format is illegal
+        std::cout << "Error: header format is illegal" << std::endl;
         return 0;
     }
     
@@ -430,66 +405,36 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_v
 	}
 	
 	if (!id_vec.empty() && num_obs != id_vec.size()) {
+		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
 		return 0;
 	}
-	
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	std::map<int, int> id_map;
+
+	std::map<std::string, int> id_map;
 	if (use_rec_order) {
-		// we need to traverse through every line of the file and
-		// record the max and min values.  So long as the max and min
-		// values are such that num_obs = (max - min) + 1, we will assume
-		// record order is valid.
-		long long min_val = LLONG_MAX;
-		long long max_val = LLONG_MIN;
-		while (!file.eof()) {
-			int obs1=0, obs2=0;
-			getline(file, str);
-			if (!str.empty()) {
-				std::stringstream ss (str, stringstream::in | stringstream::out);
-				ss >> obs1 >> obs2;
-				if (obs1 < min_val) {
-					min_val = obs1;
-				} else if (obs1 > max_val) {
-					max_val = obs1;
-				}
-				if (obs2 < min_val) {
-					min_val = obs2;
-				} else if (obs2 > max_val) {
-					max_val = obs2;
-				}
-			}
-		}
-		if (max_val - min_val != num_obs - 1) {
-			return 0;
-		}
-		for (int i=0; i<num_obs; i++) { 
-            id_map[i+min_val] = i;
+        // using sequential ids 0,1,2,...
+        for (int i=0; i<num_obs; i++) {
+            std::string str_id;
+            str_id = std::to_string(i);
+            id_map[ str_id ] = i;
         }
-	} else {
-		// get mapping from key_field to record ids (which always start
-		// from 0 internally, but are displayed to the user from 1)
-		for (int i=0; i<num_obs; i++) { 
-            id_map[id_vec[i]] = i;
+    } else {
+        for (int i=0; i<num_obs; i++) {
+            id_map[ id_vec[i] ] = i;
         }
-		if (id_map.size() != num_obs) {
-			return 0;
-		}
-	}
+    }
+
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
 	// we need to traverse through every line of the file and
 	// record the number of neighbors for each observation.
-	std::map<int, int>::iterator it;
-	std::map<int, int> nbr_histogram;
+	std::map<std::string, int>::iterator it;
+	std::map<std::string, int> nbr_histogram;
 	while (!file.eof()) {
-		int obs1=0;
+		std::string obs1;
 		getline(file, str);
 		if (!str.empty()) {
-			std::stringstream ss (str, stringstream::in | stringstream::out);
+			std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 			ss >> obs1;
 			
 			it = nbr_histogram.find(obs1);
@@ -503,18 +448,18 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_v
 	
 	GwtElement* gwt = new GwtElement[num_obs];
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
-	map<int, int>::iterator it1;
-	map<int, int>::iterator it2;
+	std::map<std::string, int>::iterator it1;
+	std::map<std::string, int>::iterator it2;
 	int line_num = 1;
 	while (!file.eof()) {
 		int gwt_obs1, gwt_obs2;
-		int obs1, obs2;
+		std::string obs1, obs2;
         double w_val;
 		getline(file, str);
 		if (!str.empty()) {
-			std::stringstream ss(str, stringstream::in | stringstream::out);
+			std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
 			ss >> obs1 >> obs2 >> w_val;
 			it1 = id_map.find(obs1);
 			it2 = id_map.find(obs2);
@@ -539,6 +484,10 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_v
 	
     GwtWeight *rw = new GwtWeight();
     rw->gwt = gwt;
+    rw->num_obs = num_obs;
+    rw->is_symmetric = false;
+    rw->id_field = key_field;
+    rw->GetNbrStats();
     return rw;
 }
 
@@ -574,7 +523,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
         }
         int pos = line.find("FIXEDWEIGHTS@");
         if (pos > 0) {
-            string fixed_w = line.substr(pos+13, 4);
+            std::string fixed_w = line.substr(pos+13, 4);
             if (boost::iequals(fixed_w, "True")) {
                 fixed = true;
             }
@@ -690,5 +639,9 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
 
     GalWeight *rw = new GalWeight();
     rw->gal = gal;
+    rw->num_obs = no_obs;
+    rw->is_symmetric = false;
+    rw->id_field = id_name;
+    rw->GetNbrStats();
     return rw;
 }

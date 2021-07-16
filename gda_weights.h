@@ -60,9 +60,9 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
                                   const std::string& kernel,
                                   bool use_kernel_diagonals);
 
-GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<int>& id_vec = std::vector<int>());
+GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::string>& id_vec = std::vector<std::string>());
 
-GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<int>& id_vec = std::vector<int>());
+GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::string>& id_vec = std::vector<std::string>());
 
 GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_vec = std::vector<int>());
 #endif
