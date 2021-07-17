@@ -33,6 +33,11 @@ public:
                               const char* layer_name,
                               const char* id_var_name,
                               const std::vector<std::string>& id_vec) = 0;
+
+    virtual void SetNeighbors(int id, const std::vector<int>& nbr_ids) = 0;
+
+    virtual void SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w) = 0;
+    
     // functions:
     virtual bool   IsSymmetric() const;
     virtual double GetSparsity() const;
@@ -42,6 +47,7 @@ public:
     virtual double GetMedianNbrs() const;
     virtual int    GetNumObs() const;
     virtual bool   IsInternalUse() const { return is_internal_use; }
+    virtual bool   IsMasked(int obs_idx) { return true;}
 
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);

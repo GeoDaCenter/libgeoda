@@ -13,6 +13,9 @@
 #include <clocale>
 #endif
 
+#include <boost/algorithm/string.hpp>
+#include <boost/unordered_map.hpp>
+
 #include "weights/VoronoiUtils.h"
 #include "weights/PolysToContigWeights.h"
 #include "weights/GalWeight.h"
@@ -184,19 +187,17 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
     return (GeoDaWeight*)poW;
 }
 
-GeoDaWeight* gda_load_weights(const char* weights_path)
+GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::string>& id_vec)
 {
-    // Create and install global locale
-#ifdef __WIN32__
-    w_char_t wstr[1024];
-    std::mbstowcs(wstr, file_path, 1024);
-    std::ifstream file(wstr);
-#else
     std::ifstream file;
+#ifdef __WIN32__
+    file.open(fname.wc_str(), std::ios::in);
+#else
     file.open(weights_path, std::ios::in);
 #endif
 
     if (!(file.is_open() && file.good())) {
+        std::cout << "not open" << std::endl;
         return 0;
     }
 
@@ -222,6 +223,7 @@ GeoDaWeight* gda_load_weights(const char* weights_path)
         // sub_match is the first parenthesized expression.
         int n_items = what.size();
         if (n_items != 5) {
+            std::cout << "n_items != 5" << std::endl;
             return 0;
         }
         std::string num1_str = what.str(1);
@@ -233,6 +235,7 @@ GeoDaWeight* gda_load_weights(const char* weights_path)
         num2 = std::stoi(num2_str);
     } else {
         // header format is illegal
+        std::cout << "Error: header format is illegal" << std::endl;
         return 0;
     }
 
@@ -246,59 +249,23 @@ GeoDaWeight* gda_load_weights(const char* weights_path)
         }
     }
 
+    if (!id_vec.empty() && num_obs != id_vec.size()) {
+		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
+        return 0;
+	}
+
     std::map<std::string, int> id_map;
 
     if (use_rec_order) {
-        // we need to traverse through every second line of the file and
-        // record the max and min values.  So long as the max and min
-        // values are such that num_obs = (max - min) + 1, we will assume
-        // record order is valid.
-        int min_val = std::numeric_limits<int>::max();
-        int max_val = 0;
-
-        while (!file.eof()) {
-            int  obs=0, num_neigh=0;
-            // get next non-blank line
-            str = "";
-            while (str.empty() && !file.eof()) {
-                getline(file, str);
-                line_cnt++;
-            }
-            if (file.eof()) {
-                continue;
-            }
-            std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
-            ss >> obs >> num_neigh;
-            if (obs < min_val) {
-                min_val = obs;
-            } else if (obs > max_val) {
-                max_val = obs;
-            }
-            if (num_neigh > 0) { // ignore the list of neighbors
-                // get next non-blank line
-                str = "";
-                while (str.empty() && !file.eof()) {
-                    getline(file, str);
-                    line_cnt++;
-                }
-                if (file.eof()) continue;
-            }
-        }
-        if (max_val - min_val != num_obs - 1) {
-            // num_obs doesn't match
-            return 0;
-        }
-        for (int i=0; i<num_obs; i++) {
-            std::string iid;
-            iid = std::to_string(i+min_val);
-            id_map[ iid ] = i;
-        }
-    } else {
         // using sequential ids 0,1,2,...
         for (int i=0; i<num_obs; i++) {
             std::string str_id;
             str_id = std::to_string(i);
             id_map[ str_id ] = i;
+        }
+    } else {
+        for (int i=0; i<num_obs; i++) {
+            id_map[ id_vec[i] ] = i;
         }
     }
 
@@ -327,6 +294,7 @@ GeoDaWeight* gda_load_weights(const char* weights_path)
         it = id_map.find(obs);
         if (it == id_map.end()) {
             delete [] gal;
+            std::cout << "Error: observation id (" << obs << ") doesn't match input vector of ids." << std::endl;
             return 0; // observation doesn't match
         }
         gal_obs = (*it).second; // value
@@ -348,6 +316,7 @@ GeoDaWeight* gda_load_weights(const char* weights_path)
                 it = id_map.find(neigh);
                 if (it == id_map.end()) {
                     delete [] gal;
+                    std::cout << "observation doesn't match2" << std::endl;
                     return 0; // observation doesn't match
                 }
                 long n_id = (*it).second; // value of id_map[neigh];
@@ -363,5 +332,316 @@ GeoDaWeight* gda_load_weights(const char* weights_path)
 
     GalWeight *rw = new GalWeight();
     rw->gal = gal;
+    rw->num_obs = num_obs;
+    rw->is_symmetric = true;
+    rw->id_field = key_field;
+    rw->GetNbrStats();
+    return (GeoDaWeight*)rw;
+}
+
+GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::string>& id_vec)
+{
+    std::ifstream file;
+#ifdef __WIN32__
+    file.open(fname.wc_str(), std::ios::in);
+#else
+    file.open(weights_path, std::ios::in);
+#endif
+
+    if (!(file.is_open() && file.good())) {
+        return 0;
+    }
+
+    // First determine if header line is correct
+	// Can be either: int int string string  (type n_obs filename field)
+	// or : int (n_obs)
+	
+	bool use_rec_order = false;
+	std::string str;
+	getline(file, str);
+	std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
+	
+	int num1 = 0;
+	int num2 = 0;
+	int num_obs = 0;	
+	std::string dbf_name, key_field;
+    
+    std::string line;
+    getline(ss, line);
+    std::string header(line);
+    
+    // header format: num1 num2 "dbf_name" key_field
+    const std::regex r("^([0-9]+)\\s([0-9]+)\\s(.*?|'.*?'|\".*?\")\\s(.*?|'.*?'|\".*?\")$");
+    std::smatch what;
+    if(std::regex_match(header, what, r)) {
+        // The first sub_match is the whole string; the next
+        // sub_match is the first parenthesized expression.
+        int n_items = what.size();
+        if (n_items != 5) {
+            std::cout << "Error: header format is illegal" << std::endl;
+            return 0;
+        }
+        std::string num1_str = what.str(1);
+        std::string num2_str = what.str(2);
+        dbf_name = what.str(3);
+        key_field = what.str(4);
+
+        num1 = std::stoi(num1_str);
+        num2 = std::stoi(num2_str);
+    } else {
+        // header format is illegal
+        std::cout << "Error: header format is illegal" << std::endl;
+        return 0;
+    }
+    
+	if (num2 == 0) {
+		use_rec_order = true;
+		num_obs = num1;
+	} else {
+		num_obs = num2;
+		if (key_field.empty() || key_field == "ogc_fid") {
+			use_rec_order = true;
+		}
+	}
+	
+	if (!id_vec.empty() && num_obs != id_vec.size()) {
+		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
+		return 0;
+	}
+
+	std::map<std::string, int> id_map;
+	if (use_rec_order) {
+        // using sequential ids 0,1,2,...
+        for (int i=0; i<num_obs; i++) {
+            std::string str_id;
+            str_id = std::to_string(i);
+            id_map[ str_id ] = i;
+        }
+    } else {
+        for (int i=0; i<num_obs; i++) {
+            id_map[ id_vec[i] ] = i;
+        }
+    }
+
+	file.clear();
+	file.seekg(0, std::ios::beg); // reset to beginning
+	getline(file, str); // skip header line
+	// we need to traverse through every line of the file and
+	// record the number of neighbors for each observation.
+	std::map<std::string, int>::iterator it;
+	std::map<std::string, int> nbr_histogram;
+	while (!file.eof()) {
+		std::string obs1;
+		getline(file, str);
+		if (!str.empty()) {
+			std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
+			ss >> obs1;
+			
+			it = nbr_histogram.find(obs1);
+			if (it == nbr_histogram.end()) {
+				nbr_histogram[obs1] = 1;
+			} else {
+				nbr_histogram[obs1] = (*it).second + 1;
+			}
+		}
+	}
+	
+	GwtElement* gwt = new GwtElement[num_obs];
+	file.clear();
+	file.seekg(0, std::ios::beg); // reset to beginning
+	getline(file, str); // skip header line
+	std::map<std::string, int>::iterator it1;
+	std::map<std::string, int>::iterator it2;
+	int line_num = 1;
+	while (!file.eof()) {
+		int gwt_obs1, gwt_obs2;
+		std::string obs1, obs2;
+        double w_val;
+		getline(file, str);
+		if (!str.empty()) {
+			std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
+			ss >> obs1 >> obs2 >> w_val;
+			it1 = id_map.find(obs1);
+			it2 = id_map.find(obs2);
+			if (it1 == id_map.end() || it2 == id_map.end()) {
+                // id not found
+				delete [] gwt;
+				return 0;
+			}
+			gwt_obs1 = (*it1).second; // value
+			gwt_obs2 = (*it2).second; // value
+            
+			if (gwt[gwt_obs1].empty()) {
+                gwt[gwt_obs1].alloc(nbr_histogram[obs1]);
+            }
+            
+			gwt[gwt_obs1].Push(GwtNeighbor(gwt_obs2, w_val));
+		}
+		line_num++;
+	}	
+	
+	if (file.is_open()) file.close();
+	
+    GwtWeight *rw = new GwtWeight();
+    rw->gwt = gwt;
+    rw->num_obs = num_obs;
+    rw->is_symmetric = false;
+    rw->id_field = key_field;
+    rw->GetNbrStats();
+    return rw;
+}
+
+GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_vec)
+{
+    #ifdef __WIN32__
+    std::ifstream istream;
+    istream.open(weights_path.wc_str(), std::ios::binary|std::ios::in);
+#else
+    std::ifstream istream;
+    istream.open(weights_path, std::ios::binary|std::ios::in);  // a text file
+#endif
+    
+    if (!(istream.is_open() && istream.good())) {
+        return 0;
+    }
+    // first line
+    // ID_VAR_NAME;ESRI_SRS\n
+    std::string line;
+    getline(istream, line, '\n');
+    std::string id_name = line.substr(0, line.find(';'));
+    
+    int swmType = 0; // old
+    bool fixed = false;
+    
+    if (id_name.find("VERSION")==0) {
+        swmType = 1;
+        // new format: VERSION@10.1;UNIQUEID@FIELD_ID;
+        id_name = line.substr(line.find(';')+1, line.size()-1);
+        id_name = id_name.substr(0, id_name.find(';'));
+        if (id_name.find("UNIQUEID") ==0 ){
+            id_name = id_name.substr(id_name.find('@')+1, id_name.size()-1);
+        }
+        int pos = line.find("FIXEDWEIGHTS@");
+        if (pos > 0) {
+            std::string fixed_w = line.substr(pos+13, 4);
+            if (boost::iequals(fixed_w, "True")) {
+                fixed = true;
+            }
+        }
+    }
+    
+    // NO_OBS length=4
+    uint32_t no_obs = 0;
+    istream.read((char*)&no_obs, 4); // reads 4 bytes into
+
+    if (!id_vec.empty() && id_vec.size() != no_obs) {
+        // input id_vec doesn't match with NumRecords in swm
+        return 0;
+    }
+
+    boost::unordered_map<int, uint32_t> id_map;
+    
+    if (id_name != "Unknown" && !id_vec.empty()) {
+        for (int i=0; i<id_vec.size(); i++) {
+            id_map[id_vec[i]] = i;
+        }
+    } else {
+        for (int i=0; i<no_obs; i++) {
+            id_map[i] = i;
+        }
+    }
+    
+    // ROW_STD length = 4
+    uint32_t row_std = 0;
+    istream.read((char*)&row_std, 4);
+    
+    std::vector<std::vector<int> > nbr_ids(no_obs);
+    std::vector<std::vector<double> > nbr_ws(no_obs);
+
+    for (int i=0; i<no_obs; i++) {
+        // origin length = 4
+        uint32_t origin = 0;
+        istream.read((char*)&origin, 4);
+        int o_idx = id_map[origin];
+        
+        if ( id_map.find(o_idx) == id_map.end() ) {
+            // WeightsIntegerKeyNotFoundException(o_idx)
+            return 0;
+        }
+        
+        // no_nghs length = 4
+        uint32_t no_nghs = 0;
+        istream.read((char*)&no_nghs, 4);
+        
+        if (no_nghs > 0) {
+            if (fixed) {
+                uint32_t* n_ids = new uint32_t[no_nghs];
+                istream.read ((char*)n_ids, sizeof (uint32_t) * no_nghs);
+                
+                double _w = 0;
+                istream.read((char*)&_w, sizeof(double));
+                
+                double sum_w;
+                istream.read((char*)&sum_w, sizeof(double)); // 8
+                
+                nbr_ids[o_idx].resize(no_nghs);
+                nbr_ws[o_idx].resize(no_nghs);
+                for (int j=0; j<no_nghs; j++) {
+                    if ( id_map.find(n_ids[j]) == id_map.end() ) {
+                        // WeightsIntegerKeyNotFoundException(o_idx);
+                        return 0;
+                    }
+                    nbr_ids[o_idx][j] = id_map[ n_ids[j] ];
+                    nbr_ws[o_idx][j] = _w;
+                }
+                delete[] n_ids;
+                
+            } else {
+                uint32_t* n_ids = new uint32_t[no_nghs];
+                istream.read ((char*)n_ids, sizeof (uint32_t) * no_nghs);
+                
+                double* n_w = new double[no_nghs];
+                istream.read ((char*)n_w, sizeof (double) * no_nghs);
+                
+                double sum_w;
+                istream.read((char*)&sum_w, 8);
+                
+                nbr_ids[o_idx].resize(no_nghs);
+                nbr_ws[o_idx].resize(no_nghs);
+                for (int j=0; j<no_nghs; j++) {
+                    if ( id_map.find(n_ids[j]) == id_map.end() ) {
+                        // WeightsIntegerKeyNotFoundException(o_idx);
+                        return 0;
+                    }
+                    nbr_ids[ o_idx ][j] = id_map[ n_ids[j] ];
+                    nbr_ws[ o_idx ][j] = n_w[j];
+                }
+                
+                delete[] n_w;
+                delete[] n_ids;
+            }
+        }
+    }
+    
+    GalElement* gal = new GalElement[no_obs];
+    for (int i=0; i<no_obs; i++) {
+        int no_nghs = nbr_ids[i].size();
+        gal[i].SetSizeNbrs(no_nghs);
+        std::vector<int>& n_ids = nbr_ids[i];
+        std::vector<double>& n_w = nbr_ws[i];
+        for (int j=0; j<no_nghs; j++) {
+            int nid = n_ids[j];
+            gal[ i ].SetNbr(j, nid, n_w[j]);
+        }
+    }
+    
+    istream.close();
+
+    GalWeight *rw = new GalWeight();
+    rw->gal = gal;
+    rw->num_obs = no_obs;
+    rw->is_symmetric = false;
+    rw->id_field = id_name;
+    rw->GetNbrStats();
     return rw;
 }

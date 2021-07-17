@@ -92,6 +92,16 @@ const std::vector<double> GwtWeight::GetNeighborWeights(int obs_idx)
     return gwt[obs_idx].GetNbrWeights();
 }
 
+void GwtWeight::SetNeighbors(int id, const std::vector<int>& nbr_ids)
+{
+    // not implemented, since GAL will be used to create weights internally 
+}
+
+void GwtWeight::SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w)
+{
+    // not implemented, since GAL will be used to create weights internally 
+}
+
 bool GwtWeight::CheckNeighbor(int obs_idx, int nbr_idx)
 {
     return gwt[obs_idx].Check(nbr_idx);

@@ -64,8 +64,9 @@ void MultiJoinCount::ComputeLoalSA() {
 
     int sum = 0;
     for (int i=0; i<num_obs; i++) {
-        if (!undefs[i])
+        if (!undefs[i]) {
             sum += zz[i];
+        }
     }
     bool nocolocation = sum == 0;
 
@@ -134,7 +135,7 @@ void MultiJoinCount::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed
     int max_rand = num_obs-1;
 
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
-        if (undefs[cnt]) {
+        if (undefs[cnt] || weights->IsMasked(cnt) == false) {
             sig_cat_vec[cnt] = 6; // undefined cat
             continue;
         }
@@ -196,7 +197,7 @@ void MultiJoinCount::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed
 void MultiJoinCount::PermCalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
-        if (undefs[cnt]) {
+        if (undefs[cnt] || weights->IsMasked(cnt) == false) {
             sig_cat_vec[cnt] = 6; // undefined
             continue;
         }
@@ -248,8 +249,8 @@ void MultiJoinCount::PermLocalSA(int cnt, int perm, int numNeighbors, const int*
     permutedSA[perm] = permutedLag;
 }
 
-void MultiJoinCount::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighbors, std::vector<double>
-        &permutedSA) {
+void MultiJoinCount::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighbors,
+                                 std::vector<double>& permutedSA) {
 
     int validNeighbors = 0;
     double permutedLag = 0;

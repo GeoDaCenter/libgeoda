@@ -88,8 +88,9 @@ void UniG::ComputeLoalSA() {
     unsigned int ng = 0;
     double mean_g = 0;
     for (int i=0; i<num_obs; ++i) {
-        if (weights->GetNbrSize(i) == 0 || undefs[i] || G_defined[i] == false)
+        if (weights->GetNbrSize(i) == 0 || undefs[i] || G_defined[i] == false) {
             continue;
+        }
         mean_g += lisa_vec[i];
         ng += 1;
     }
@@ -97,9 +98,9 @@ void UniG::ComputeLoalSA() {
 
     // assign cluster
     for (int i=0; i<num_obs; ++i) {
-        if (weights->GetNbrSize(i) == 0 || undefs[i] || G_defined[i] == false)
+        if (weights->GetNbrSize(i) == 0 || undefs[i] || G_defined[i] == false) {
             continue;
-
+        }
         if (lisa_vec[i] >= mean_g) {
             cluster_vec[i] = CLUSTER_HIGHHIGH;
         } else {
