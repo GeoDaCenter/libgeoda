@@ -349,6 +349,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::strin
 #endif
 
     if (!(file.is_open() && file.good())) {
+        std::cout << "Error: can't open file." << std::endl; 
         return 0;
     }
 
@@ -502,6 +503,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
 #endif
     
     if (!(istream.is_open() && istream.good())) {
+        std::cout << "Error: can't open file." << std::endl; 
         return 0;
     }
     // first line
@@ -536,6 +538,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
 
     if (!id_vec.empty() && id_vec.size() != no_obs) {
         // input id_vec doesn't match with NumRecords in swm
+		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
         return 0;
     }
 
@@ -566,6 +569,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
         
         if ( id_map.find(o_idx) == id_map.end() ) {
             // WeightsIntegerKeyNotFoundException(o_idx)
+            std::cout << "Error: observation id (" << o_idx << ") not found." << std::endl;
             return 0;
         }
         
@@ -589,6 +593,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
                 for (int j=0; j<no_nghs; j++) {
                     if ( id_map.find(n_ids[j]) == id_map.end() ) {
                         // WeightsIntegerKeyNotFoundException(o_idx);
+                        std::cout << "Error: observation id (" << n_ids[j] << ") not found." << std::endl;
                         return 0;
                     }
                     nbr_ids[o_idx][j] = id_map[ n_ids[j] ];
@@ -611,6 +616,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
                 for (int j=0; j<no_nghs; j++) {
                     if ( id_map.find(n_ids[j]) == id_map.end() ) {
                         // WeightsIntegerKeyNotFoundException(o_idx);
+                        std::cout << "Error: observation id (" << n_ids[j] << ") not found." << std::endl;
                         return 0;
                     }
                     nbr_ids[ o_idx ][j] = id_map[ n_ids[j] ];
