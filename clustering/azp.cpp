@@ -1163,6 +1163,9 @@ void MaxpRegion::PhaseConstructionThreaded()
     int remainder = max_iter % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
 
+#ifdef __NO_THREAD__
+    RunConstructionRange(0, max_iter-1);
+#else
 #ifdef __USE_PTHREAD__
     pthread_t *threadPool = new pthread_t[nCPUs];
     struct maxp_thread_args *args = new maxp_thread_args[nCPUs];
@@ -1203,6 +1206,7 @@ void MaxpRegion::PhaseConstructionThreaded()
     }
     threadPool.join_all();
 #endif
+#endif
 }
 
 void MaxpRegion::PhaseLocalImprovementThreaded()
@@ -1215,7 +1219,9 @@ void MaxpRegion::PhaseLocalImprovementThreaded()
     int quotient = nCandidates / nCPUs;
     int remainder = nCandidates % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
-
+#ifdef __NO_THREAD__
+    RunLocalImprovementRange(0, nCandidates-1);
+#else
 #ifdef __USE_PTHREAD__
     pthread_t *threadPool = new pthread_t[nCPUs];
     struct maxp_thread_args *args = new maxp_thread_args[nCPUs];
@@ -1256,6 +1262,7 @@ void MaxpRegion::PhaseLocalImprovementThreaded()
     }
     threadPool.join_all();
 #endif
+#endif
 }
 
 void MaxpRegion::RunConstructionRange(int start, int end)
@@ -1279,10 +1286,12 @@ void MaxpRegion::RunConstruction(long long seed)
     MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, controls, init_areas, seed);
     int tmp_p = rm_local.GetPRegions();
     double of = rm_local.GetInitObjectiveFunction();
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.lock();
 #else
     pthread_mutex_lock(&lock);
+#endif
 #endif
     if (largest_p < tmp_p) {
         candidates.clear(); // new collection for largest p
@@ -1291,11 +1300,13 @@ void MaxpRegion::RunConstruction(long long seed)
     if (largest_p == tmp_p) {
         candidates[of] = rm_local.GetResults(); // could have duplicates
     }
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.unlock();
 #else
     //pthread_cond_signal(&wcond);
     pthread_mutex_unlock(&lock);
+#endif
 #endif
 }
 
@@ -1316,21 +1327,25 @@ void MaxpGreedy::RunAZP(std::vector<int>& solution, long long seed, int i)
 
     std::vector<int> result = azp.GetResults();
     double of = azp.GetFinalObjectiveFunction();
-
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.lock();
 #else
     pthread_mutex_lock(&lock);
+#endif
 #endif
 
     if (of < best_of) {
         best_result = result;
         best_of = of;
     }
+
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.unlock();
 #else
     pthread_mutex_unlock(&lock);
+#endif
 #endif
 }
 
@@ -1354,19 +1369,25 @@ void MaxpSA::RunAZP(std::vector<int>& solution, long long seed, int i)
     std::vector<int> result = azp.GetResults();
     double of = azp.GetFinalObjectiveFunction();
 
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.lock();
 #else
     pthread_mutex_lock(&lock);
 #endif
+#endif
+
     if (of < best_of) {
         best_result = result;
         best_of = of;
     }
+
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.unlock();
 #else
     pthread_mutex_unlock(&lock);
+#endif
 #endif
 }
 
@@ -1394,19 +1415,26 @@ void MaxpTabu::RunAZP(std::vector<int>& solution, long long seed, int i)
     std::vector<int> result = azp.GetResults();
     double of = azp.GetFinalObjectiveFunction();
 
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.lock();
 #else
     pthread_mutex_lock(&lock);
 #endif
+#endif
+
     if (of < best_of) {
         best_result = result;
         best_of = of;
     }
+
+
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     mutex.unlock();
 #else
     pthread_mutex_unlock(&lock);
+#endif
 #endif
 }
 

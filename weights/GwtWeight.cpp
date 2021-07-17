@@ -140,7 +140,7 @@ void GwtWeight::GetNbrStats()
         nnbrs_array.push_back(n_nbrs);
     }
     //double n_edges = e_dict.size() / 2.0;
-    std::cout << sum_nnbrs << "/" << ((double)(num_obs) * num_obs) << std::endl;
+    //std::cout << sum_nnbrs << "/" << ((double)(num_obs) * num_obs) << std::endl;
     sparsity = sum_nnbrs / ((double)num_obs * (double)num_obs);
 
     if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;
