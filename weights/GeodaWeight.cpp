@@ -68,26 +68,6 @@ double GeoDaWeight::GetMedianNbrs() const
     return median_nbrs;
 }
 
-void GeoDaWeight::ReadFile(const char* file_path)
-{
-#ifdef __WIN32__
-    w_char_t wstr[1024];
-    std::mbstowcs(wstr, file_path, 1024);
-    std::ifstream file(wstr);
-#else
-    std::ifstream file;
-    file.open(file_path, std::ios::in);
-#endif
-
-    if (!(file.is_open() && file.good())) {
-        return;
-    }
-
-
-    file.clear();
-    if (file.is_open()) file.close();
-}
-
 bool GeoDaWeight::CheckConnectivity()
 {
     // start from first node in W

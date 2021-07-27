@@ -37,7 +37,7 @@ public:
     virtual void SetNeighbors(int id, const std::vector<int>& nbr_ids) = 0;
 
     virtual void SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w) = 0;
-    
+
     // functions:
     virtual bool   IsSymmetric() const;
     virtual double GetSparsity() const;
@@ -57,8 +57,6 @@ public:
     virtual std::string GetIDName() const { return id_field;}
 
     virtual std::string GetUID() const {return uid;}
-
-    virtual void ReadFile(const char* file_path);
 
     // Properties
     enum WeightType { gal_type, gwt_type };

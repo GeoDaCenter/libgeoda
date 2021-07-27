@@ -190,14 +190,10 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
 GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::string>& id_vec)
 {
     std::ifstream file;
-#ifdef __WIN32__
-    file.open(fname.wc_str(), std::ios::in);
-#else
     file.open(weights_path, std::ios::in);
-#endif
 
     if (!(file.is_open() && file.good())) {
-        std::cout << "not open" << std::endl;
+        //std::cout << "not open" << std::endl;
         return 0;
     }
 
@@ -223,7 +219,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::strin
         // sub_match is the first parenthesized expression.
         int n_items = what.size();
         if (n_items != 5) {
-            std::cout << "n_items != 5" << std::endl;
+            //std::cout << "n_items != 5" << std::endl;
             return 0;
         }
         std::string num1_str = what.str(1);
@@ -235,7 +231,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::strin
         num2 = std::stoi(num2_str);
     } else {
         // header format is illegal
-        std::cout << "Error: header format is illegal" << std::endl;
+        //std::cout << "Error: header format is illegal" << std::endl;
         return 0;
     }
 
@@ -250,7 +246,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::strin
     }
 
     if (!id_vec.empty() && num_obs != id_vec.size()) {
-		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
+		//std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
         return 0;
 	}
 
@@ -294,7 +290,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::strin
         it = id_map.find(obs);
         if (it == id_map.end()) {
             delete [] gal;
-            std::cout << "Error: observation id (" << obs << ") doesn't match input vector of ids." << std::endl;
+            //std::cout << "Error: observation id (" << obs << ") doesn't match input vector of ids." << std::endl;
             return 0; // observation doesn't match
         }
         gal_obs = (*it).second; // value
@@ -316,7 +312,7 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::strin
                 it = id_map.find(neigh);
                 if (it == id_map.end()) {
                     delete [] gal;
-                    std::cout << "observation doesn't match2" << std::endl;
+                    //std::cout << "observation doesn't match2" << std::endl;
                     return 0; // observation doesn't match
                 }
                 long n_id = (*it).second; // value of id_map[neigh];
@@ -342,14 +338,10 @@ GeoDaWeight* gda_load_gal(const char* weights_path, const std::vector<std::strin
 GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::string>& id_vec)
 {
     std::ifstream file;
-#ifdef __WIN32__
-    file.open(fname.wc_str(), std::ios::in);
-#else
     file.open(weights_path, std::ios::in);
-#endif
 
     if (!(file.is_open() && file.good())) {
-        std::cout << "Error: can't open file." << std::endl; 
+        //std::cout << "Error: can't open file." << std::endl; 
         return 0;
     }
 
@@ -379,7 +371,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::strin
         // sub_match is the first parenthesized expression.
         int n_items = what.size();
         if (n_items != 5) {
-            std::cout << "Error: header format is illegal" << std::endl;
+            //std::cout << "Error: header format is illegal" << std::endl;
             return 0;
         }
         std::string num1_str = what.str(1);
@@ -391,7 +383,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::strin
         num2 = std::stoi(num2_str);
     } else {
         // header format is illegal
-        std::cout << "Error: header format is illegal" << std::endl;
+        //std::cout << "Error: header format is illegal" << std::endl;
         return 0;
     }
     
@@ -406,7 +398,7 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::strin
 	}
 	
 	if (!id_vec.empty() && num_obs != id_vec.size()) {
-		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
+		//std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
 		return 0;
 	}
 
@@ -494,16 +486,11 @@ GeoDaWeight* gda_load_gwt(const char* weights_path, const std::vector<std::strin
 
 GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_vec)
 {
-    #ifdef __WIN32__
-    std::ifstream istream;
-    istream.open(weights_path.wc_str(), std::ios::binary|std::ios::in);
-#else
     std::ifstream istream;
     istream.open(weights_path, std::ios::binary|std::ios::in);  // a text file
-#endif
     
     if (!(istream.is_open() && istream.good())) {
-        std::cout << "Error: can't open file." << std::endl; 
+        //std::cout << "Error: can't open file." << std::endl; 
         return 0;
     }
     // first line
@@ -538,18 +525,18 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
 
     if (!id_vec.empty() && id_vec.size() != no_obs) {
         // input id_vec doesn't match with NumRecords in swm
-		std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
+		//std::cout << "Error: the size of id_vec is not equal to the number of observations." << std::endl;
         return 0;
     }
 
     boost::unordered_map<int, uint32_t> id_map;
     
     if (id_name != "Unknown" && !id_vec.empty()) {
-        for (int i=0; i<id_vec.size(); i++) {
+        for (size_t i=0; i<id_vec.size(); i++) {
             id_map[id_vec[i]] = i;
         }
     } else {
-        for (int i=0; i<no_obs; i++) {
+        for (size_t i=0; i<no_obs; i++) {
             id_map[i] = i;
         }
     }
@@ -561,7 +548,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
     std::vector<std::vector<int> > nbr_ids(no_obs);
     std::vector<std::vector<double> > nbr_ws(no_obs);
 
-    for (int i=0; i<no_obs; i++) {
+    for (size_t i=0; i<no_obs; i++) {
         // origin length = 4
         uint32_t origin = 0;
         istream.read((char*)&origin, 4);
@@ -569,7 +556,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
         
         if ( id_map.find(o_idx) == id_map.end() ) {
             // WeightsIntegerKeyNotFoundException(o_idx)
-            std::cout << "Error: observation id (" << o_idx << ") not found." << std::endl;
+            //std::cout << "Error: observation id (" << o_idx << ") not found." << std::endl;
             return 0;
         }
         
@@ -590,10 +577,10 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
                 
                 nbr_ids[o_idx].resize(no_nghs);
                 nbr_ws[o_idx].resize(no_nghs);
-                for (int j=0; j<no_nghs; j++) {
+                for (size_t j=0; j<no_nghs; j++) {
                     if ( id_map.find(n_ids[j]) == id_map.end() ) {
                         // WeightsIntegerKeyNotFoundException(o_idx);
-                        std::cout << "Error: observation id (" << n_ids[j] << ") not found." << std::endl;
+                        //std::cout << "Error: observation id (" << n_ids[j] << ") not found." << std::endl;
                         return 0;
                     }
                     nbr_ids[o_idx][j] = id_map[ n_ids[j] ];
@@ -613,10 +600,10 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
                 
                 nbr_ids[o_idx].resize(no_nghs);
                 nbr_ws[o_idx].resize(no_nghs);
-                for (int j=0; j<no_nghs; j++) {
+                for (size_t j=0; j<no_nghs; j++) {
                     if ( id_map.find(n_ids[j]) == id_map.end() ) {
                         // WeightsIntegerKeyNotFoundException(o_idx);
-                        std::cout << "Error: observation id (" << n_ids[j] << ") not found." << std::endl;
+                        //std::cout << "Error: observation id (" << n_ids[j] << ") not found." << std::endl;
                         return 0;
                     }
                     nbr_ids[ o_idx ][j] = id_map[ n_ids[j] ];
@@ -630,7 +617,7 @@ GeoDaWeight* gda_load_swm(const char* weights_path, const std::vector<int>& id_v
     }
     
     GalElement* gal = new GalElement[no_obs];
-    for (int i=0; i<no_obs; i++) {
+    for (size_t i=0; i<no_obs; i++) {
         int no_nghs = nbr_ids[i].size();
         gal[i].SetSizeNbrs(no_nghs);
         std::vector<int>& n_ids = nbr_ids[i];
