@@ -1,11 +1,15 @@
 #ifndef __GEODA_CENTER_POLYS_TO_CONTIG_WEIGHTS_H__
 #define __GEODA_CENTER_POLYS_TO_CONTIG_WEIGHTS_H__
 
+#include <cfloat>
 
 #include "../geofeature.h"
 #include "GalWeight.h"
 
+#define CMP_DBL_EPSILON sqrt(DBL_EPSILON)
+
 static const int GdaConst_EMPTY = -1;
+
 /**
  BasePartition
  */
@@ -64,7 +68,7 @@ class PartitionP : public BasePartition  {
     };
     int inTheRange(const double range) const
     {
-        if (range < 0 || range/step > cells) return -1;
+        if (range < 0 || range/step > cells + CMP_DBL_EPSILON) return -1;
         int where= (int) floor(range / step);
         if (where < 0) where= 0;
         else if (where >= cells) --where;
