@@ -280,10 +280,10 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 		vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-        e.alloc( q.size() == 1 ?  0 : k);
+        e.alloc( kernel.empty() ?  nn : k);
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
-			if (kernel.empty() && w.second == v.second)
+			if (w.second == v.second)
                 continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -294,10 +294,17 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
             neigh.weight =  d;
 			e.Push(neigh);
 			++cnt;
-            if (cnt >= k) {
+            if (cnt >= nn) {
                 break;
             }
 		}
+	// add self if kernel weights
+        if (!kernel.empty()) {
+            GwtNeighbor neigh;
+            neigh.nbx = v.second;
+            neigh.weight = 0;
+            e.Push(neigh);
+        }
         if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.empty()) {
             GwtNeighbor* nbrs = e.dt();
             for (int j=0; j<e.Size(); j++) {
@@ -411,7 +418,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 		vector<pt_3d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-        e.alloc( q.size() == 1 ?  0 : k);
+        e.alloc( kernel.empty() ? nn : k);
 		double lon_v, lat_v;
 		double x_v, y_v;
 		if (is_arc) {
@@ -423,7 +430,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 		}
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_3d_val const& w, q) {
-			if (kernel.empty() && w.second == v.second)
+			if (w.second == v.second)
                 continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -451,10 +458,18 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 
 			e.Push(neigh);
 			++cnt;
-            if (cnt >= k) {
+            if (cnt >= nn) {
                 break;
             }
 		}
+
+		// add self if kernel weights
+        if (!kernel.empty()) {
+            GwtNeighbor neigh;
+            neigh.nbx = v.second;
+            neigh.weight = 0;
+            e.Push(neigh);
+        }
         if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.empty()) {
             GwtNeighbor* nbrs = e.dt();
             for (int j=0; j<e.Size(); j++) {
