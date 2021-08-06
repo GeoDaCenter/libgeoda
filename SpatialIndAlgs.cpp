@@ -280,7 +280,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 		vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-        e.alloc( q.size() > nn ?  nn : q.size());
+        e.alloc( q.size() == 1 ?  0 : k);
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
 			if (kernel.empty() && w.second == v.second)
@@ -294,7 +294,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
             neigh.weight =  d;
 			e.Push(neigh);
 			++cnt;
-            if (cnt >= nn) {
+            if (cnt >= k) {
                 break;
             }
 		}
@@ -411,7 +411,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 		vector<pt_3d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-        e.alloc( q.size() > nn ?  nn : q.size());
+        e.alloc( q.size() == 1 ?  0 : k);
 		double lon_v, lat_v;
 		double x_v, y_v;
 		if (is_arc) {
@@ -451,7 +451,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 
 			e.Push(neigh);
 			++cnt;
-            if (cnt >= nn) {
+            if (cnt >= k) {
                 break;
             }
 		}
