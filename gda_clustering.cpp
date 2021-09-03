@@ -5,10 +5,13 @@
 #include "clustering/redcap_wrapper.h"
 #include "clustering/azp_wrapper.h"
 #include "clustering/schc_wrapper.h"
+#include "clustering/spatial_validation.h"
+#include "clustering/joincount_ratio.h"
+#include "clustering/make_spatial.h"
 #include "GenUtils.h"
 #include "gda_data.h"
 #include "gda_clustering.h"
-
+#include "gda_interface.h"
 
 const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
                                                      const std::vector<std::vector<double> > &_data,
@@ -368,4 +371,68 @@ double gda_betweensumofsquare(const std::vector<std::vector<int> >& solution,
     double totwithiness = gda_totalwithinsumofsquare(solution, data);
     double betweenss = totss - totwithiness;
     return betweenss;
+}
+
+ValidationResult gda_spatialvalidation(AbstractGeoDa* geoda, const std::vector<int>& clusters,
+        GeoDaWeight *w)
+{
+    int num_obs = geoda->GetNumObs();
+
+    std::vector<std::vector<int> > groups;
+    std::map<int, std::vector<int> > cluster_dict;
+    for (int i = 0; i < num_obs; ++i) {
+        cluster_dict[clusters[i]].push_back(i);
+    }
+    std::map<int, std::vector<int> >::iterator it;
+    for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
+        groups.push_back(it->second);
+    }
+    std::sort(groups.begin(), groups.end(), GenUtils::less_vectors);
+
+    SpatialValidation sv(num_obs, groups, w, geoda->GetMainMap().records, geoda->GetMainMap().shape_type);
+
+    ValidationResult result;
+    result.spatially_constrained = sv.IsSpatiallyConstrained();
+    result.fragmentation = sv.GetFragmentation();
+    result.cluster_fragmentation = sv.GetFragmentationFromClusters();
+    result.cluster_diameter = sv.GetDiameterFromClusters();
+    result.cluster_compactness = sv.GetCompactnessFromClusters();
+
+
+    result.joincount_ratio = joincount_ratio(clusters, w);
+
+    return result;
+}
+
+std::vector<int> gda_makespatial(const std::vector<int>& clusters, GeoDaWeight* w)
+{
+    int num_obs = w->GetNumObs();
+
+    std::vector<std::vector<int> > groups;
+    std::map<int, std::vector<int> > cluster_dict;
+    for (int i = 0; i < num_obs; ++i) {
+        cluster_dict[clusters[i]].push_back(i);
+    }
+    std::map<int, std::vector<int> >::iterator it;
+    for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
+        groups.push_back(it->second);
+    }
+    std::sort(groups.begin(), groups.end(), GenUtils::less_vectors);
+
+    MakeSpatial ms(num_obs, groups, w);
+    ms.Run();
+
+    std::vector<int> result(num_obs);
+    std::vector<std::vector<int> > new_groups = ms.GetClusters();
+    int n_cluster = new_groups.size();
+
+    for (int i=0; i < n_cluster; i++) {
+        int c = i + 1;
+        for (int j=0; j<new_groups[i].size(); j++) {
+            int idx = new_groups[i][j];
+            result[idx] = c;
+        }
+    }
+
+    return result;
 }

@@ -6,6 +6,8 @@
 
 #include "./weights/GeodaWeight.h"
 
+class AbstractGeoDa;
+
 // APIs of clustering
 /**
  *
@@ -265,6 +267,100 @@ std::vector<double> gda_withinsumofsquare(const std::vector<std::vector<int> >& 
  */
 double gda_betweensumofsquare(const std::vector<std::vector<int> >& solution,
                               const std::vector<std::vector<double> >& data);
+
+
+
+struct Fragmentation {
+    int n;
+    double fraction;
+    double entropy;
+    double std_entropy;
+    double simpson;
+    double std_simpson;
+    int min_cluster_size;
+    int max_cluster_size;
+    double mean_cluster_size;
+    bool is_spatially_contiguous;
+
+    Fragmentation() : n(0), entropy(0), std_entropy(0), simpson(0), std_simpson(0),
+                      min_cluster_size(0), max_cluster_size(0), mean_cluster_size(0),
+                      is_spatially_contiguous(true), fraction(0) {}
+
+    Fragmentation& operator = (const Fragmentation& item) {
+        n = item.n;
+        entropy = item.entropy;
+        std_entropy = item.std_entropy;
+        simpson = item.simpson;
+        std_simpson = item.std_simpson;
+        min_cluster_size = item.min_cluster_size;
+        max_cluster_size = item.max_cluster_size;
+        mean_cluster_size = item.mean_cluster_size;
+        is_spatially_contiguous = item.is_spatially_contiguous;
+        return *this;
+    }
+};
+
+struct Compactness {
+    double isoperimeter_quotient;
+    double area;
+    double perimeter;
+    Compactness() : isoperimeter_quotient(0), area(0), perimeter(0) {}
+
+    Compactness& operator = (const Compactness& item) {
+        isoperimeter_quotient = item.isoperimeter_quotient;
+        area = item.area;
+        perimeter = item.perimeter;
+        return *this;
+    }
+};
+
+struct Diameter {
+    int steps;
+    double ratio;
+    Diameter() : steps(0), ratio(0) {}
+
+    Diameter& operator = (const Diameter& item) {
+        steps = item.steps;
+        ratio = item.ratio;
+        return *this;
+    }
+};
+
+struct JoinCountRatio {
+    int cluster;
+    int n;
+    int totalNeighbors;
+    int totalJoinCount;
+    double ratio;
+    JoinCountRatio(): n(0), totalNeighbors(0), totalJoinCount(0),ratio(0) {}
+};
+
+struct ValidationResult {
+    bool spatially_constrained;
+    Fragmentation fragmentation;
+    std::vector<Fragmentation> cluster_fragmentation;
+    std::vector<Diameter> cluster_diameter;
+    std::vector<Compactness> cluster_compactness;
+    std::vector<JoinCountRatio> joincount_ratio;
+};
+
+/**
+ *
+ * @param geoda
+ * @param clusters
+ * @param w
+ * @return
+ */
+ValidationResult gda_spatialvalidation(AbstractGeoDa* geoda, const std::vector<int>& clusters, GeoDaWeight *w);
+
+/**
+ * Make spatially constrained clusters from non-spatially constrained clusters
+ *
+ * @param clusters
+ * @param w
+ * @return
+ */
+std::vector<int> gda_makespatial(const std::vector<int>& clusters, GeoDaWeight* w);
 
 #endif
 

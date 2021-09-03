@@ -1,0 +1,33 @@
+name: libgeoda Mac OSX build
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**/README.md'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  osx_build:
+    runs-on: macos-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          # relative path under $GITHUB_WORKSPACE
+          path: 'libgeoda'
+
+      - name: Build and Test with libgeoda_test
+        run: |
+          cd $GITHUB_WORKSPACE
+          git clone --recurse-submodules https://github.com/lixun910/libgeoda_test.git
+          ls
+          cd libgeoda_test
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make
+          ctest --verbose
+          
