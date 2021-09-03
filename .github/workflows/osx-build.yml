@@ -1,7 +1,7 @@
 name: libgeoda Mac OSX build
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**/README.md'
   # Allows you to run this workflow manually from the Actions tab
