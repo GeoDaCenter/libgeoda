@@ -22,7 +22,8 @@ jobs:
       - name: Build and Test with libgeoda_test
         run: |
           cd $GITHUB_WORKSPACE
-          git clone --recursive https://github.com/lixun910/libgeoda_test.git
+          git clone --recursive-submodules https://github.com/lixun910/libgeoda_test.git
+          ls
           cd libgeoda_test
           mkdir build
           cd build
