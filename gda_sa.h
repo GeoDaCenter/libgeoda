@@ -15,12 +15,35 @@ class AbstractGeoDa;
  * @param w
  * @param data
  * @param undefs
+ * @param significance_cutoff
+ * @param nCPUs
+ * @param permutations
+ * @param last_seed_used
  * @return
  */
 LISA *gda_localmoran(GeoDaWeight *w,
                      const std::vector<double> &data,
                      const std::vector<bool> &undefs, double significance_cutoff,
                      int nCPUs, int permutations, const std::string& permutation_method, int last_seed_used);
+
+/**
+ *
+ * @param w
+ * @param data1 
+ * @param data2
+ * @param undefs
+ * @param significance_cutoff
+ * @param nCPUs
+ * @param permutations
+ * @param last_seed_used
+ * @return
+ */
+LISA *gda_bi_localmoran(GeoDaWeight *w,
+                        const std::vector<double> &data1,
+                        const std::vector<double> &data2,
+                        const std::vector<bool> &undefs,
+                        double significance_cutoff,
+                        int nCPUs, int permutations, const std::string& permutation_method, int last_seed_used);
 
 /**
  *
