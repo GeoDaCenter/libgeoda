@@ -59,12 +59,13 @@ public:
     bool isSurroundedSingleton;
     
 protected:
+    int cid;
+    std::vector<int> elements;
     GeoDaWeight* weights;
     std::map<int, int>& cluster_dict;
-    std::vector<int> elements;
-    int cid;
-    std::map<int, bool> elements_dict;
     std::map<int, std::vector<int> > edges;
+    int nCPUs;
+    std::map<int, bool> elements_dict;
     
     struct Step {
         int eid;
@@ -81,7 +82,6 @@ protected:
     };
     
     std::vector<int> shortest_paths;
-    int nCPUs;
 };
 
 class SpatialValidationCluster
@@ -110,15 +110,15 @@ public:
     Diameter ComputeDiameter();
     
 protected:
-    GeoDaWeight* weights;
-    std::map<int, int>& cluster_dict;
-    std::vector<int> elements;
     int cid;
+    std::vector<int> elements;
+    std::map<int, int>& cluster_dict;
+    GeoDaWeight* weights;
     SpatialValidationComponent* core;
-    std::vector<SpatialValidationComponent*> components;
-    std::map<int, SpatialValidationComponent*> component_dict;
     std::vector<gda::GeometryContent*> geoms;
     gda::ShapeType shape_type;
+    std::vector<SpatialValidationComponent*> components;
+    std::map<int, SpatialValidationComponent*> component_dict;
     
 };
 
@@ -153,15 +153,16 @@ protected:
     void ComputeDiameter();
     
 protected:
-    GeoDaWeight* weights;
-    std::vector<std::vector<int> > clusters;
     int num_obs;
-    int num_clusters;
-    std::map<int, int> cluster_dict;
+    std::vector<std::vector<int> > clusters;
+    GeoDaWeight* weights;
     bool valid;
-    std::vector<SpatialValidationCluster*> sk_clusters;
     std::vector<gda::GeometryContent*> geoms;
     gda::ShapeType shape_type;
+    
+    int num_clusters;
+    std::map<int, int> cluster_dict;
+    std::vector<SpatialValidationCluster*> sk_clusters;
     
     Fragmentation fragmentation;
     std::vector<Fragmentation> fragmentations;

@@ -51,10 +51,10 @@ public:
     bool isSurroundedSingleton;
     
 protected:
+    int cid;
+    std::vector<int> elements;
     GeoDaWeight* weights;
     std::map<int, int>& cluster_dict;
-    std::vector<int> elements;
-    int cid;
     std::map<int, bool> elements_dict;
 };
 
@@ -89,10 +89,10 @@ public:
     std::vector<int> GetComponentSize();
     
 protected:
-    GeoDaWeight* weights;
-    std::map<int, int>& cluster_dict;
-    std::vector<int> elements;
     int cid;
+    std::vector<int> elements;
+    std::map<int, int>& cluster_dict;
+    GeoDaWeight* weights;
     MakeSpatialComponent* core;
     std::vector<MakeSpatialComponent*> components;
     std::map<int, MakeSpatialComponent*> component_dict;
@@ -122,13 +122,14 @@ protected:
     std::vector<MakeSpatialCluster*> GetClustersByComponentSize(int sz);
     
 protected:
-    GeoDaWeight* weights;
-    std::vector<std::vector<int> > clusters;
     int num_obs;
+    std::vector<std::vector<int> > clusters;
+    GeoDaWeight* weights;
+    bool valid;
+
     int num_clusters;
     
     std::map<int, int> cluster_dict;
-    bool valid;
     
     std::vector<MakeSpatialCluster*> sk_clusters;
 };
