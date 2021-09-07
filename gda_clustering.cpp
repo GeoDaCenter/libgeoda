@@ -404,6 +404,16 @@ ValidationResult gda_spatialvalidation(AbstractGeoDa* geoda, const std::vector<i
     return result;
 }
 
+std::vector<JoinCountRatio> gda_joincount_ratio(const std::vector<int>& clusters, GeoDaWeight *w)
+{
+    return joincount_ratio(clusters, w);
+}
+
+JoinCountRatio gda_all_joincount_ratio(const std::vector<JoinCountRatio>& items)
+{
+    return all_joincount_ratio(items);
+}
+
 std::vector<int> gda_makespatial(const std::vector<int>& clusters, GeoDaWeight* w)
 {
     int num_obs = w->GetNumObs();

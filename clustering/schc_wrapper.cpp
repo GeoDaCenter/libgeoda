@@ -110,7 +110,7 @@ schc_wrapper::schc_wrapper(unsigned int k,
                 std::vector<int> clusters;
                 int* clusterid = new int[num_obs];
 
-                double cutoffDistance = cuttree (num_obs, htree, k, clusterid);
+                cuttree (num_obs, htree, k, clusterid);
 
                 delete[] htree;
 

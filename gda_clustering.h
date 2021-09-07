@@ -272,7 +272,6 @@ double gda_betweensumofsquare(const std::vector<std::vector<int> >& solution,
 
 struct Fragmentation {
     int n;
-    double fraction;
     double entropy;
     double std_entropy;
     double simpson;
@@ -281,6 +280,7 @@ struct Fragmentation {
     int max_cluster_size;
     double mean_cluster_size;
     bool is_spatially_contiguous;
+    double fraction;
 
     Fragmentation() : n(0), entropy(0), std_entropy(0), simpson(0), std_simpson(0),
                       min_cluster_size(0), max_cluster_size(0), mean_cluster_size(0),
@@ -332,7 +332,7 @@ struct JoinCountRatio {
     int totalNeighbors;
     int totalJoinCount;
     double ratio;
-    JoinCountRatio(): n(0), totalNeighbors(0), totalJoinCount(0),ratio(0) {}
+    JoinCountRatio(): cluster(0), n(0), totalNeighbors(0), totalJoinCount(0),ratio(0) {}
 };
 
 struct ValidationResult {
@@ -361,6 +361,21 @@ ValidationResult gda_spatialvalidation(AbstractGeoDa* geoda, const std::vector<i
  * @return
  */
 std::vector<int> gda_makespatial(const std::vector<int>& clusters, GeoDaWeight* w);
+
+/**
+ * 
+ * @param items
+ * @return
+ */
+JoinCountRatio gda_all_joincount_ratio(const std::vector<JoinCountRatio>& items);
+
+/**
+ * 
+ * @param clusters
+ * @param w
+ * @return
+ */
+std::vector<JoinCountRatio> gda_joincount_ratio(const std::vector<int>& clusters, GeoDaWeight *w);
 
 #endif
 
