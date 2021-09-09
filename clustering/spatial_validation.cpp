@@ -13,6 +13,7 @@
 #include "../GdaConst.h"
 #include "../weights/GeodaWeight.h"
 #include "../geofeature.h"
+#include "../SpatialIndAlgs.h"
 #include "spatial_validation.h"
 
 namespace bg = boost::geometry;
