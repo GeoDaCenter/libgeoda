@@ -19,7 +19,8 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
         const std::vector<double>& bound_vals,
         double min_bound,
         int rand_seed,
-        int cpu_threads)
+        int cpu_threads,
+        double** dist_matrix)
 {
     if (w) {
         num_obs = w->num_obs;
@@ -54,7 +55,9 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             double* weight = new double[n_cols];
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
-            double** distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
+            // lower triangle distance matrix
+            double** distances = dist_matrix;
+            if (!distances) distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
             //double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
 
             // call redcap
@@ -81,10 +84,9 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
                 redcap->Partitioning(k);
                 cluster_ids = redcap->GetRegions();
             }
-
             if (weight) delete[] weight;
             if (_bound_vals) delete[] _bound_vals;
-            if (distances) {
+            if (distances && dist_matrix == NULL) {
                 for (int i = 1; i < num_obs; i++) free(distances[i]);
                 free(distances);
             }

@@ -18,7 +18,8 @@ schc_wrapper::schc_wrapper(unsigned int k,
         unsigned int method,
         const std::string &distance_method,
         const std::vector<double>& bound_vals,
-        double min_bound)
+        double min_bound,
+        double** dist_matrix)
 {
     if (w) {
         num_obs = w->num_obs;
@@ -54,7 +55,8 @@ schc_wrapper::schc_wrapper(unsigned int k,
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
             // lower triangular half of the distance matrix
-            double** distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
+            double** distances = dist_matrix;
+            if (!distances) distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
             //double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
 
             // call redcap

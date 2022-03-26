@@ -24,7 +24,8 @@ public:
                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                  const std::vector<int>& init_regions,
                  const std::string &distance_method,
-                 int rnd_seed);
+                 int rnd_seed,
+                 double** dist_matrix);
 
     virtual ~azp_wrapper();
 
@@ -63,6 +64,8 @@ protected:
     int rnd_seed;
 
     std::vector<std::vector<int> > cluster_ids;
+
+    double** dist_matrix;
 };
 
 class azp_greedy_wrapper : public azp_wrapper {
@@ -74,7 +77,8 @@ public:
                         const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                         const std::vector<int>& init_regions,
                         const std::string &distance_method,
-                        int rnd_seed);
+                        int rnd_seed,
+                        double** dist_matrix);
 
     virtual ~azp_greedy_wrapper();
 
@@ -97,7 +101,8 @@ public:
                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                     const std::vector<int>& init_regions,
                     const std::string &distance_method,
-                    int rnd_seed);
+                    int rnd_seed,
+                    double** dist_matrix);
 
     virtual ~azp_sa_wrapper();
 
@@ -120,7 +125,8 @@ public:
                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                     const std::vector<int>& init_regions,
                     const std::string &distance_method,
-                    int rnd_seed);
+                    int rnd_seed,
+                    double** dist_matrix);
 
     virtual ~azp_tabu_wrapper();
 

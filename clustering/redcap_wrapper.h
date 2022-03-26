@@ -20,7 +20,8 @@ public:
                    const std::vector<double>& bound_vals,
                    double min_bound,
                    int rand_seed,
-                   int cpu_threads);
+                   int cpu_threads,
+                   double** dist_matrix);
 
     virtual ~redcap_wrapper();
 

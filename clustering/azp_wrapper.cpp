@@ -20,9 +20,10 @@ azp_wrapper::azp_wrapper(int p, GeoDaWeight *w,
                            const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                            const std::vector<int>& init_regions,
                            const std::string &distance_method,
-                           int rnd_seed)
+                           int rnd_seed,
+                           double** dist_matrix)
                            : p(p), num_obs(w->num_obs), n_cols(data.size()), inits(inits),
-                           distance_method(distance_method), data(data), init_regions(init_regions), rnd_seed(rnd_seed)
+                           distance_method(distance_method), data(data), init_regions(init_regions), rnd_seed(rnd_seed), dist_matrix(dist_matrix)
 {
     gal = Gda::GetGalElement(w);
 
@@ -57,7 +58,9 @@ void azp_wrapper::Run() {
             double* weight = new double[n_cols];
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
-            double** ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
+            // lower triangle distance matrix
+            double** ragged_distances = dist_matrix;
+            if (!ragged_distances) ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
             dm = new RawDistMatrix(ragged_distances);
 
             RegionMaker* azp = RunAZP();
@@ -123,8 +126,9 @@ azp_greedy_wrapper::azp_greedy_wrapper(int p, GeoDaWeight *w,
                                          const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                          const std::vector<int>& init_regions,
                                          const std::string &distance_method,
-                                         int rnd_seed)
-        : azp_wrapper(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed)
+                                         int rnd_seed,
+                                         double** dist_matrix)
+        : azp_wrapper(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, dist_matrix)
 {
     Run();
 }
@@ -149,8 +153,9 @@ azp_sa_wrapper::azp_sa_wrapper(int p, GeoDaWeight *w,
                                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                  const std::vector<int>& init_regions,
                                  const std::string &distance_method,
-                                 int rnd_seed)
-: azp_wrapper(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed),
+                                 int rnd_seed,
+                                 double** dist_matrix)
+: azp_wrapper(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, dist_matrix),
 cooling_rate(cooling_rate), sa_maxit(sa_maxit)
 {
     Run();
@@ -176,8 +181,9 @@ azp_tabu_wrapper::azp_tabu_wrapper(int p, GeoDaWeight *w,
                                      const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                      const std::vector<int>& init_regions,
                                      const std::string &distance_method,
-                                     int rnd_seed)
-        : azp_wrapper(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed),
+                                     int rnd_seed,
+                                     double** dist_matrix)
+        : azp_wrapper(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, dist_matrix),
           tabu_length(tabu_length), conv_tabu(conv_tabu)
 {
     Run();
