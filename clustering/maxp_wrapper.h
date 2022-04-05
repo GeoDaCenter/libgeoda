@@ -25,7 +25,8 @@ public:
                  const std::vector<int>& init_regions,
                  const std::string &distance_method,
                  int rnd_seed,
-                 int cpu_threads);
+                 int cpu_threads,
+                 double** dist_matrix);
 
     virtual ~maxp_wrapper();
 
@@ -64,6 +65,8 @@ protected:
     std::vector<std::vector<int> > cluster_ids;
 
     int cpu_threads;
+
+    double **dist_matrix;
 };
 
 class maxp_greedy_wrapper : public maxp_wrapper {
@@ -76,7 +79,8 @@ public:
                         const std::vector<int>& init_regions,
                         const std::string &distance_method,
                         int rnd_seed,
-                        int cpu_threads);
+                        int cpu_threads,
+                        double** dist_matrix);
 
     virtual ~maxp_greedy_wrapper();
 
@@ -100,7 +104,8 @@ public:
                     const std::vector<int>& init_regions,
                     const std::string &distance_method,
                     int rnd_seed,
-                    int cpu_threads);
+                    int cpu_threads,
+                    double** dist_matrix);
 
     virtual ~maxp_sa_wrapper();
 
@@ -124,7 +129,8 @@ public:
                     const std::vector<int>& init_regions,
                     const std::string &distance_method,
                     int rnd_seed,
-                    int cpu_threads);
+                    int cpu_threads,
+                    double** dist_matrix);
 
     virtual ~maxp_tabu_wrapper();
 

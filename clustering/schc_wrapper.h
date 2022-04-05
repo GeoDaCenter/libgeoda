@@ -18,7 +18,8 @@ public:
                    unsigned int redcap_method,
                    const std::string &distance_method,
                    const std::vector<double>& bound_vals,
-                   double min_bound);
+                   double min_bound,
+                   double** dist_matrix);
 
     virtual ~schc_wrapper();
 

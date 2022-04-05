@@ -20,6 +20,7 @@ class AbstractGeoDa;
  * @param init_regions
  * @param distance_method
  * @param rnd_seed
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
@@ -30,7 +31,8 @@ const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
                                                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                     const std::vector<int>& init_regions,
                                                     const std::string &distance_method,
-                                                    int rnd_seed);
+                                                    int rnd_seed,
+                                                    double** dist_matrix);
 
 /**
  *
@@ -45,6 +47,7 @@ const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
  * @param init_regions
  * @param distance_method
  * @param rnd_seed
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
@@ -57,7 +60,8 @@ const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
                                                 const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                 const std::vector<int>& init_regions,
                                                 const std::string &distance_method,
-                                                int rnd_seed);
+                                                int rnd_seed,
+                                                double** dist_matrix);
 
 /**
  *
@@ -72,6 +76,7 @@ const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
  * @param init_regions
  * @param distance_method
  * @param rnd_seed
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
@@ -84,7 +89,8 @@ const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
                                                   const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                   const std::vector<int>& init_regions,
                                                   const std::string &distance_method,
-                                                  int rnd_seed);
+                                                  int rnd_seed,
+                                                  double** dist_matrix);
 
 /**
  *
@@ -97,6 +103,7 @@ const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
  * @param distance_method
  * @param rnd_seed
  * @param cpu_threads
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
@@ -108,7 +115,8 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
                                                      const std::vector<int>& init_regions,
                                                      const std::string &distance_method,
                                                      int rnd_seed,
-                                                     int cpu_threads);
+                                                     int cpu_threads,
+                                                     double** dist_matrix);
 
 
 /**
@@ -124,6 +132,7 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
  * @param distance_method
  * @param rnd_seed
  * @param cpu_threads
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
@@ -137,7 +146,8 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
                                                  const std::vector<int>& init_regions,
                                                  const std::string &distance_method,
                                                  int rnd_seed,
-                                                 int cpu_threads);
+                                                 int cpu_threads,
+                                                 double** dist_matrix);
 
 /**
  *
@@ -152,6 +162,7 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
  * @param distance_method
  * @param rnd_seed
  * @param cpu_threads
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
@@ -165,7 +176,8 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
                                                    const std::vector<int>& init_regions,
                                                    const std::string &distance_method,
                                                    int rnd_seed,
-                                                   int cpu_threads);
+                                                   int cpu_threads,
+                                                   double** dist_matrix);
 
 /**
  *
@@ -178,6 +190,7 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
  * @param min_bound
  * @param rand_seed
  * @param cpu_threads
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_redcap(unsigned int k,
@@ -189,7 +202,8 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
                                                 int rand_seed,
-                                                int cpu_threads);
+                                                int cpu_threads,
+                                                double** dist_matrix);
 
 /**
  *
@@ -201,6 +215,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
  * @param min_bound
  * @param rand_seed
  * @param cpu_threads
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_skater(unsigned int k,
@@ -211,7 +226,8 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
                                                 int rand_seed,
-                                                int cpu_threads);
+                                                int cpu_threads,
+                                                double** dist_matrix);
 
 
 /**
@@ -225,6 +241,7 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
  * @param min_bound
  * @param rand_seed
  * @param cpu_threads
+ * @param dist_matrix lower triangle precomputed distance matrix
  * @return
  */
 const std::vector<std::vector<int> > gda_schc(unsigned int k,
@@ -234,7 +251,8 @@ const std::vector<std::vector<int> > gda_schc(unsigned int k,
                                                 const std::string &linkage_method,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
-                                                double min_bound);
+                                                double min_bound,
+                                                double** dist_matrix);
 
 /**
  *
@@ -363,14 +381,14 @@ ValidationResult gda_spatialvalidation(AbstractGeoDa* geoda, const std::vector<i
 std::vector<int> gda_makespatial(const std::vector<int>& clusters, GeoDaWeight* w);
 
 /**
- * 
+ *
  * @param items
  * @return
  */
 JoinCountRatio gda_all_joincount_ratio(const std::vector<JoinCountRatio>& items);
 
 /**
- * 
+ *
  * @param clusters
  * @param w
  * @return

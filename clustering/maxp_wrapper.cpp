@@ -21,10 +21,11 @@ maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
                            const std::vector<int>& init_regions,
                            const std::string &distance_method,
                            int rnd_seed,
-                           int cpu_threads)
+                           int cpu_threads,
+                           double** dist_matrix)
                            : num_obs(w->num_obs), n_cols(data.size()), iterations(iterations),
                            distance_method(distance_method), data(data), init_regions(init_regions), rnd_seed(rnd_seed),
-                           cpu_threads(cpu_threads)
+                           cpu_threads(cpu_threads), dist_matrix(dist_matrix)
 {
     gal = Gda::GetGalElement(w);
 
@@ -58,7 +59,9 @@ void maxp_wrapper::Run() {
             double* weight = new double[n_cols];
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
-            double** ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
+            // lower triangle distance matrix
+            double** ragged_distances = dist_matrix;
+            if (!ragged_distances) ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
             dm = new RawDistMatrix(ragged_distances);
 
             MaxpRegion* maxp = RunMaxp();
@@ -125,8 +128,9 @@ maxp_greedy_wrapper::maxp_greedy_wrapper(GeoDaWeight *w,
                                          const std::vector<int>& init_regions,
                                          const std::string &distance_method,
                                          int rnd_seed,
-                                         int cpu_threads)
-        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads)
+                                         int cpu_threads,
+                                         double** dist_matrix)
+        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads, dist_matrix)
 {
     Run();
 }
@@ -152,8 +156,9 @@ maxp_sa_wrapper::maxp_sa_wrapper(GeoDaWeight *w,
                                  const std::vector<int>& init_regions,
                                  const std::string &distance_method,
                                  int rnd_seed,
-                                 int cpu_threads)
-: maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads),
+                                 int cpu_threads,
+                                 double** dist_matrix)
+: maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads, dist_matrix),
 cooling_rate(cooling_rate), sa_maxit(sa_maxit)
 {
     Run();
@@ -180,8 +185,9 @@ maxp_tabu_wrapper::maxp_tabu_wrapper(GeoDaWeight *w,
                                      const std::vector<int>& init_regions,
                                      const std::string &distance_method,
                                      int rnd_seed,
-                                     int cpu_threads)
-        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads),
+                                     int cpu_threads,
+                                     double** dist_matrix)
+        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads, dist_matrix),
           tabu_length(tabu_length), conv_tabu(conv_tabu)
 {
     Run();

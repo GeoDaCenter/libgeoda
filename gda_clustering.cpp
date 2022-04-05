@@ -21,7 +21,8 @@ const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
                                                      const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                      const std::vector<int>& init_regions,
                                                      const std::string &distance_method,
-                                                     int rnd_seed)
+                                                     int rnd_seed,
+                                                     double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
 
@@ -37,7 +38,7 @@ const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
     }
 
     azp_greedy_wrapper azp(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method,
-            rnd_seed);
+            rnd_seed, dist_matrix);
 
     return azp.GetClusters();
 }
@@ -52,7 +53,8 @@ const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
                                                 const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                 const std::vector<int>& init_regions,
                                                 const std::string &distance_method,
-                                                int rnd_seed)
+                                                int rnd_seed,
+                                                double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
 
@@ -68,7 +70,7 @@ const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
     }
 
     azp_sa_wrapper azp(p, w, data, inits, cooling_rate, sa_maxit, min_bounds, max_bounds, init_regions, distance_method,
-                           rnd_seed);
+                           rnd_seed, dist_matrix);
 
     return azp.GetClusters();
 }
@@ -83,7 +85,8 @@ const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
                                                   const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                   const std::vector<int>& init_regions,
                                                   const std::string &distance_method,
-                                                  int rnd_seed)
+                                                  int rnd_seed,
+                                                  double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
 
@@ -99,7 +102,7 @@ const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
     }
 
     azp_tabu_wrapper azp(p, w, data, inits, tabu_length, conv_tabu, min_bounds, max_bounds, init_regions,
-            distance_method, rnd_seed);
+            distance_method, rnd_seed, dist_matrix);
 
     return azp.GetClusters();
 }
@@ -113,7 +116,8 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
                                                      const std::vector<int>& init_regions,
                                                      const std::string &distance_method,
                                                      int rnd_seed,
-                                                     int cpu_threads)
+                                                     int cpu_threads,
+                                                     double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
 
@@ -128,7 +132,7 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
         }
     }
 
-    maxp_greedy_wrapper maxp(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads);
+    maxp_greedy_wrapper maxp(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads, dist_matrix);
 
     return maxp.GetClusters();
 }
@@ -144,7 +148,8 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
                                               const std::vector<int>& init_regions,
                                               const std::string &distance_method,
                                               int rnd_seed,
-                                              int cpu_threads)
+                                              int cpu_threads,
+                                              double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
 
@@ -160,7 +165,7 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
     }
 
     maxp_sa_wrapper maxp(w, data, iterations, cooling_rate, sa_maxit, min_bounds, max_bounds, init_regions,
-            distance_method, rnd_seed, cpu_threads);
+            distance_method, rnd_seed, cpu_threads, dist_matrix);
 
     return maxp.GetClusters();
 }
@@ -176,7 +181,8 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
                                                    const std::vector<int>& init_regions,
                                                    const std::string &distance_method,
                                                    int rnd_seed,
-                                                   int cpu_threads)
+                                                   int cpu_threads,
+                                                   double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
 
@@ -192,7 +198,7 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
     }
 
     maxp_tabu_wrapper maxp(w, data, iterations, tabu_length, conv_tabu, min_bounds, max_bounds, init_regions,
-            distance_method, rnd_seed, cpu_threads);
+            distance_method, rnd_seed, cpu_threads, dist_matrix);
 
     return maxp.GetClusters();
 }
@@ -206,7 +212,8 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
                                                 int rand_seed,
-                                                int cpu_threads)
+                                                int cpu_threads,
+                                                double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
     unsigned int method = 0;
@@ -234,7 +241,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
             gda_transform_inplace(data[i], scale_method);
         }
     }
-    redcap_wrapper redcap(k, w, data, method, distance_method, bound_vals, min_bound, rand_seed, cpu_threads);
+    redcap_wrapper redcap(k, w, data, method, distance_method, bound_vals, min_bound, rand_seed, cpu_threads, dist_matrix);
     return redcap.GetClusters();
 }
 
@@ -246,9 +253,10 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
                                                 int rand_seed,
-                                                int cpu_threads)
+                                                int cpu_threads,
+                                                double** dist_matrix)
 {
-    return gda_redcap(k, w, _data, scale_method, "firstorder-singlelinkage", distance_method, bound_vals, min_bound, rand_seed, cpu_threads);
+    return gda_redcap(k, w, _data, scale_method, "firstorder-singlelinkage", distance_method, bound_vals, min_bound, rand_seed, cpu_threads, dist_matrix);
 }
 
 const std::vector<std::vector<int> > gda_schc(unsigned int k,
@@ -258,7 +266,8 @@ const std::vector<std::vector<int> > gda_schc(unsigned int k,
                                                 const std::string &linkage_method,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
-                                                double min_bound)
+                                                double min_bound,
+                                                double** dist_matrix)
 {
     std::vector<std::vector<int> > result;
     unsigned int method = 0;
@@ -285,7 +294,7 @@ const std::vector<std::vector<int> > gda_schc(unsigned int k,
         }
     }
 
-    schc_wrapper schc(k, w, data, method, distance_method, bound_vals, min_bound);
+    schc_wrapper schc(k, w, data, method, distance_method, bound_vals, min_bound, dist_matrix);
     return schc.GetClusters();
 }
 
