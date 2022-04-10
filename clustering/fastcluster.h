@@ -897,7 +897,7 @@ namespace fastcluster {
             NTT = 0;
             NXO = 0;
             for (t_index k=0; k<dim; ++k) {
-                NTT += (Xb(i,k) &  Xb(j,k)) ;
+                NTT += (Xb(i,k) &&  Xb(j,k)) ;
                 NXO += (Xb(i,k) ^  Xb(j,k)) ;
             }
         }
@@ -907,7 +907,7 @@ namespace fastcluster {
             NXO = 0;
             NTF = 0;
             for (t_index k=0; k<dim; ++k) {
-                NTT += (Xb(i,k) &  Xb(j,k)) ;
+                NTT += (Xb(i,k) &&  Xb(j,k)) ;
                 NXO += (Xb(i,k) ^  Xb(j,k)) ;
                 NTF += (Xb(i,k) & ~Xb(j,k)) ;
             }
@@ -925,7 +925,7 @@ namespace fastcluster {
         void nbool_correspond_tt(const t_index i, const t_index j) const {
             NTT = 0;
             for (t_index k=0; k<dim; ++k) {
-                NTT += (Xb(i,k) & Xb(j,k)) ;
+                NTT += (Xb(i,k) && Xb(j,k)) ;
             }
         }
 
