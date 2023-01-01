@@ -2,6 +2,7 @@
 #include <queue>
 #include <iterator>
 #include <stack>
+#include <list>
 
 #include "../DataUtils.h"
 #include "azp.h"
