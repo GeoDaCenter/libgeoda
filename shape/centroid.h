@@ -1,6 +1,7 @@
 #ifndef __JSGEODA_CENTROID__
 #define __JSGEODA_CENTROID__
 
+
 // Assemble and include the file manually:
 // 1. 12.0\VC\bin\x86_amd64\ml64.exe" /c ttmathuint_x86_64_msvc.asm (inside the ttmath folder).
 // 2. Include the object file in compilation: ttmath/ttmathuint_x86_64_msvc.obj
@@ -12,13 +13,6 @@
 #include <cmath>
 #include "ttmath/ttmath.h"
 #include "../geofeature.h"
-
-#include <boost/geometry.hpp>
-
-namespace bg = boost::geometry;
-typedef bg::model::d2::point_xy<double> point_type;
-typedef bg::model::polygon<point_type> polygon_type;
-typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
 
 /// Usage: `ttmath::Big<exponent, mantissa>`
 typedef ttmath::Big<TTMATH_BITS(32), TTMATH_BITS(128)> DD;
@@ -224,52 +218,41 @@ public:
         totalLength(0.0),
         ptCount(0)
     {
-        int inner_parts = 0;
         // The first element in the array represents the exterior ring.
         // Any subsequent elements represent interior rings
         for (int p = 0; p < poly->num_parts; ++p) {
             int start = poly->parts[p];
             int end = p+1 < poly->num_parts ? poly->parts[p+1] : poly->num_points;
             if (poly->holes[p]) {
-                // addHole(poly, start, end-1);
-                inner_parts += 1;
-                polygon_type& tmp_poly = boost_mp.back();
-                tmp_poly.inners().resize(inner_parts);
-                for(int i = start; i < end; ++i) {
-                  double lng = poly->points[i].x;
-                  double lat = poly->points[i].y;
-                  bg::append(tmp_poly.inners().back(), point_type(lng, lat));
-                }
+                addHole(poly, start, end-1);
             } else {
-                //addShell(poly, start, end -1);
-                polygon_type boost_p;
-                for(int i = start; i < end; ++i) {
-                  double lng = poly->points[i].x;
-                  double lat = poly->points[i].y;
-                  bg::append(boost_p.outer(), point_type(lng, lat));
-                }
-                boost_mp.push_back(boost_p);
-                inner_parts = 0;
+                addShell(poly, start, end -1);
             }
         }
     }
 
     bool getCentroid(gda::PointContents& cent) const
     {
-        try {
-            point_type pt;
-            bg::centroid(boost_mp, pt);
-            cent.x = pt.x();
-            cent.y = pt.y();
-
-            return true;
-        } catch (boost::geometry::centroid_exception) {
+        if(std::abs(areasum2) > 0.0) {
+            cent.x = cg3.x / 3 / areasum2;
+            cent.y = cg3.y / 3 / areasum2;
+        }
+        else if(totalLength > 0.0) {
+            // if polygon was degenerate, compute linear centroid instead
+            cent.x = lineCentSum.x / totalLength;
+            cent.y = lineCentSum.y / totalLength;
+        }
+        else if(ptCount > 0) {
+            cent.x = ptCentSum.x / ptCount;
+            cent.y = ptCentSum.y / ptCount;
+        }
+        else {
             return false;
         }
+        return true;
     }
 
 private:
-    multipolygon_type boost_mp;
 
     gda::Point areaBasePt;
     gda::Point triangleCent3;

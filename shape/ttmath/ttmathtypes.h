@@ -241,7 +241,7 @@ namespace ttmath
 		/*!
 			on 64bit platforms one word (uint, sint) will be equal 64bits
 		*/
-		typedef unsigned long uint;
+		typedef unsigned long long uint;
 
 		/*!
 			on 64bit platforms one word (uint, sint) will be equal 64bits
