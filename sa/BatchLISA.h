@@ -10,6 +10,7 @@
 #include "../pg/geoms.h"
 #endif
 
+#include <cstdint>
 #include <list>
 #include <string>
 
