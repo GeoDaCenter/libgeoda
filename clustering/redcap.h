@@ -41,7 +41,6 @@
 #endif
 #endif
 
-using namespace std;
 using namespace boost;
 
 namespace SpanningTreeClustering {
@@ -78,8 +77,8 @@ namespace SpanningTreeClustering {
         }
         ~SSDUtils() {}
 
-        double ComputeSSD(vector<int>& visited_ids, int start, int end);
-        void MeasureSplit(double ssd, vector<int>& visited_ids, int split_position, Measure& result);
+        double ComputeSSD(std::vector<int>& visited_ids, int start, int end);
+        void MeasureSplit(double ssd, std::vector<int>& visited_ids, int split_position, Measure& result);
 
     };
 
@@ -170,7 +169,7 @@ namespace SpanningTreeClustering {
     struct SplitSolution
     {
         int split_pos;
-        vector<int> split_ids;
+        std::vector<int> split_ids;
         double ssd;
         double ssd_reduce;
     };
@@ -178,32 +177,32 @@ namespace SpanningTreeClustering {
     class Tree
     {
     public:
-        Tree(vector<int> ordered_ids,
-                   vector<Edge*> _edges,
+        Tree(std::vector<int> ordered_ids,
+                   std::vector<Edge*> _edges,
                    AbstractClusterFactory* cluster);
 
         ~Tree();
 
-        void Partition(int start, int end, vector<int>& ids,
-                       vector<pair<int, int> >& od_array,
-                       boost::unordered_map<int, vector<int> >& nbr_dict);
+        void Partition(int start, int end, std::vector<int>& ids,
+                       std::vector<std::pair<int, int> >& od_array,
+                       boost::unordered_map<int, std::vector<int> >& nbr_dict);
         void Split(int orig, int dest,
-                   boost::unordered_map<int, vector<int> >& nbr_dict,
-                   vector<int>& cand_ids);
-        bool checkControl(vector<int>& cand_ids, vector<int>& ids, int flag);
-        pair<Tree*, Tree*> GetSubTrees();
+                   boost::unordered_map<int, std::vector<int> >& nbr_dict,
+                   std::vector<int>& cand_ids);
+        bool checkControl(std::vector<int>& cand_ids, std::vector<int>& ids, int flag);
+        std::pair<Tree*, Tree*> GetSubTrees();
 
         double ssd_reduce;
         double ssd;
 
-        vector<pair<int, int> > od_array;
+        std::vector<std::pair<int, int> > od_array;
         AbstractClusterFactory* cluster;
-        pair<Tree*, Tree*> subtrees;
+        std::pair<Tree*, Tree*> subtrees;
         int max_id;
         int split_pos;
-        vector<int> split_ids;
-        vector<Edge*> edges;
-        vector<int> ordered_ids;
+        std::vector<int> split_ids;
+        std::vector<Edge*> edges;
+        std::vector<int> ordered_ids;
         SSDUtils* ssd_utils;
 
         double* controls;
@@ -221,10 +220,10 @@ namespace SpanningTreeClustering {
         pthread_mutex_t lock;
 #endif
 #endif
-        void run_threads(vector<int>& ids,
-                       vector<pair<int, int> >& od_array,
-                       boost::unordered_map<int, vector<int> >& nbr_dict);
-        vector<SplitSolution> split_cands;
+        void run_threads(std::vector<int>& ids,
+                       std::vector<std::pair<int, int> >& od_array,
+                       boost::unordered_map<int, std::vector<int> >& nbr_dict);
+        std::vector<SplitSolution> split_cands;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -251,7 +250,7 @@ namespace SpanningTreeClustering {
         GeoDaWeight* w;
         double** dist_matrix;
         double** raw_data;
-        const vector<bool>& undefs; // undef = any one item is undef in all variables
+        const std::vector<bool>& undefs; // undef = any one item is undef in all variables
         double* controls;
         double control_thres;
         SSDUtils* ssd_utils;
@@ -259,22 +258,22 @@ namespace SpanningTreeClustering {
         //Cluster* cluster;
         DisjoinSet djset;
 
-        vector<Node*> nodes;
-        vector<Edge*> edges;
+        std::vector<Node*> nodes;
+        std::vector<Edge*> edges;
 
-        vector<int> ordered_ids;
-        vector<Edge*> ordered_edges;
+        std::vector<int> ordered_ids;
+        std::vector<Edge*> ordered_edges;
 
-        vector<boost::unordered_map<int, double> > dist_dict;
+        std::vector<boost::unordered_map<int, double> > dist_dict;
 
-        vector<vector<int> > cluster_ids;
+        std::vector<std::vector<int> > cluster_ids;
 
         int cpu_threads;
 
         AbstractClusterFactory(int row, int col,
                        double** distances,
                        double** data,
-                       const vector<bool>& undefs,
+                       const std::vector<bool>& undefs,
                        GeoDaWeight * w,
                        int cpu_threads);
         virtual ~AbstractClusterFactory();
@@ -283,15 +282,15 @@ namespace SpanningTreeClustering {
 
         virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id,
                                          bool is_orig_nbr, bool is_dest_nbr,
-                                         vector<int>& clst_ids,
-                                         vector<int>& clst_startpos,
-                                         vector<int>& clst_nodenum) { return 0;}
+                                         std::vector<int>& clst_ids,
+                                         std::vector<int>& clst_startpos,
+                                         std::vector<int>& clst_nodenum) { return 0;}
 
-        Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end){ return NULL;}
+        Edge* GetShortestEdge(std::vector<Edge*>& edges, int start, int end){ return NULL;}
 
         void init();
         void Partitioning(int k);
-        vector<vector<int> >& GetRegions();
+        std::vector<std::vector<int> >& GetRegions();
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -313,7 +312,7 @@ namespace SpanningTreeClustering {
         Skater(int rows, int cols,
                double** _distances,
                double** data,
-               const vector<bool>& undefs,
+               const std::vector<bool>& undefs,
                GeoDaWeight * w,
                double* controls,
                double control_thres,
@@ -333,7 +332,7 @@ namespace SpanningTreeClustering {
         FirstOrderSLKRedCap(int rows, int cols,
                             double** _distances,
                             double** data,
-                            const vector<bool>& undefs,
+                            const std::vector<bool>& undefs,
                             GeoDaWeight* w,
                             double* controls,
                             double control_thres,
@@ -355,7 +354,7 @@ namespace SpanningTreeClustering {
         FirstOrderALKRedCap(int rows, int cols,
                             double** _distances,
                             double** data,
-                            const vector<bool>& undefs,
+                            const std::vector<bool>& undefs,
                             GeoDaWeight* w,
                             double* controls,
                             double control_thres,
@@ -378,7 +377,7 @@ namespace SpanningTreeClustering {
         FirstOrderCLKRedCap(int rows, int cols,
                             double** _distances,
                             double** data,
-                            const vector<bool>& undefs,
+                            const std::vector<bool>& undefs,
                             GeoDaWeight* w,
                             double* controls,
                             double control_thres,
@@ -401,7 +400,7 @@ namespace SpanningTreeClustering {
         FullOrderALKRedCap(int rows, int cols,
                            double** _distances,
                            double** data,
-                           const vector<bool>& undefs,
+                           const std::vector<bool>& undefs,
                            GeoDaWeight* w,
                            double* controls,
                            double control_thres,
@@ -412,9 +411,9 @@ namespace SpanningTreeClustering {
 
         virtual void Clustering();
 
-        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
+        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, std::vector<int>& clst_ids, std::vector<int>& clst_startpos, std::vector<int>& clst_nodenum);
 
-        Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end);
+        Edge* GetShortestEdge(std::vector<Edge*>& edges, int start, int end);
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -428,14 +427,14 @@ namespace SpanningTreeClustering {
         FullOrderSLKRedCap(int rows, int cols,
                            double** _distances,
                            double** data,
-                           const vector<bool>& undefs,
+                           const std::vector<bool>& undefs,
                            GeoDaWeight* w,
                            double* controls,
                            double control_thres,
                            int cpu_threads);
         virtual ~FullOrderSLKRedCap();
 
-        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
+        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, std::vector<int>& clst_ids, std::vector<int>& clst_startpos, std::vector<int>& clst_nodenum);
 
     };
 
@@ -451,7 +450,7 @@ namespace SpanningTreeClustering {
         FullOrderCLKRedCap(int rows, int cols,
                            double** _distances,
                            double** data,
-                           const vector<bool>& undefs,
+                           const std::vector<bool>& undefs,
                            GeoDaWeight* w,
                            double* controls,
                            double control_thres,
@@ -459,7 +458,7 @@ namespace SpanningTreeClustering {
 
         virtual ~FullOrderCLKRedCap();
 
-        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
+        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, std::vector<int>& clst_ids, std::vector<int>& clst_startpos, std::vector<int>& clst_nodenum);
 
     };
 
@@ -474,7 +473,7 @@ namespace SpanningTreeClustering {
         FullOrderWardRedCap(int rows, int cols,
                            double** _distances,
                            double** data,
-                           const vector<bool>& undefs,
+                           const std::vector<bool>& undefs,
                            GeoDaWeight* w,
                            double* controls,
                            double control_thres,

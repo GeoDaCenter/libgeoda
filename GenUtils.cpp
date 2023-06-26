@@ -35,9 +35,7 @@
 #include "GdaConst.h"
 #include "GenUtils.h"
 
-using namespace std;
-
-int StringUtils::utf8_strlen(const string& str)
+int StringUtils::utf8_strlen(const std::string& str)
 {
     int c,i,ix,q;
     for (q=0, i=0, ix=str.length(); i < ix; i++, q++)
@@ -918,17 +916,17 @@ CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
 	}
 }
 
-string SampleStatistics::ToString()
+std::string SampleStatistics::ToString()
 {
-	ostringstream ss;
-	ss << "sample_size = " << sample_size << endl;
-	ss << "min = " << min << endl;
-	ss << "max = " << max << endl;
-	ss << "mean = " << mean << endl;
-	ss << "var_with_bessel = " << var_with_bessel << endl;
-	ss << "var_without_bessel = " << var_without_bessel << endl;
-	ss << "sd_with_bessel = " << sd_with_bessel << endl;
-	ss << "sd_without_bessel = " << sd_without_bessel << endl;
+	std::ostringstream ss;
+	ss << "sample_size = " << sample_size << std::endl;
+	ss << "min = " << min << std::endl;
+	ss << "max = " << max << std::endl;
+	ss << "mean = " << mean << std::endl;
+	ss << "var_with_bessel = " << var_with_bessel << std::endl;
+	ss << "var_without_bessel = " << var_without_bessel << std::endl;
+	ss << "sd_with_bessel = " << sd_with_bessel << std::endl;
+	ss << "sd_without_bessel = " << sd_without_bessel << std::endl;
 	return ss.str();
 }
 
@@ -1105,18 +1103,18 @@ double SimpleLinearRegression::TScoreTo2SidedPValue(double tscore, int df)
 
 }
 
-string SimpleLinearRegression::ToString()
+std::string SimpleLinearRegression::ToString()
 {
-	ostringstream ss;
-	ss << "covariance = " << covariance << endl;
-	ss << "correlation = " << correlation << endl;
-	ss << "alpha = " << alpha << endl;
-	ss << "beta = " << beta << endl;
-	ss << "r_squared = " << r_squared << endl;
-	ss << "valid = " << (valid ? "true" : "false") << endl;
+	std::ostringstream ss;
+	ss << "covariance = " << covariance << std::endl;
+	ss << "correlation = " << correlation << std::endl;
+	ss << "alpha = " << alpha << std::endl;
+	ss << "beta = " << beta << std::endl;
+	ss << "r_squared = " << r_squared << std::endl;
+	ss << "valid = " << (valid ? "true" : "false") << std::endl;
 	ss << "valid_correlation = " << (valid_correlation ? "true" : "false")
-		<< endl;
-	ss << "error_sum_squares = " << error_sum_squares << endl;
+		<< std::endl;
+	ss << "error_sum_squares = " << error_sum_squares << std::endl;
 	return ss.str();
 }
 
@@ -1222,21 +1220,21 @@ void AxisScale::ShowAllTics()
 	for (size_t i=0; i<tics_str_show.size(); i++) tics_str_show[i] = true;
 }
 
-string AxisScale::ToString()
+std::string AxisScale::ToString()
 {
-	ostringstream ss;
-	ss << "data_min = " << data_min << endl;
-	ss << "data_max = " << data_max << endl;
-	ss << "scale_min = " << scale_min << endl;
-	ss << "scale_max = " << scale_max << endl;
-	ss << "scale_range = " << scale_range << endl;
-	ss << "p = " << p << endl;
-	ss << "tic_inc = " << tic_inc << endl;
+	std::ostringstream ss;
+	ss << "data_min = " << data_min << std::endl;
+	ss << "data_max = " << data_max << std::endl;
+	ss << "scale_min = " << scale_min << std::endl;
+	ss << "scale_max = " << scale_max << std::endl;
+	ss << "scale_range = " << scale_range << std::endl;
+	ss << "p = " << p << std::endl;
+	ss << "tic_inc = " << tic_inc << std::endl;
 	for (int i=0, iend=tics.size(); i<iend; i++) {
 		ss << "tics[" << i << "] = " << tics[i];
-		ss << ",  tics_str[" << i << "] = " << tics_str[i] << endl;
+		ss << ",  tics_str[" << i << "] = " << tics_str[i] << std::endl;
 	}
-	ss << "Exiting AxisScale::CalculateScale" << endl;
+	ss << "Exiting AxisScale::CalculateScale" << std::endl;
 	return ss.str();
 }
 
@@ -1853,10 +1851,9 @@ bool GenUtils::isEmptyOrSpaces(const char *str)
 std::string GenUtils::FindLongestSubString(const std::vector<std::string> strings,
 										bool cs)
 {
-	using namespace std;
 	int n=strings.size();
 	if (n == 0) return "";
-	vector<std::string> strs(strings);
+	std::vector<std::string> strs(strings);
 	if (!cs) for (int i=0; i<n; i++)  boost::algorithm::to_lower(strs[i]);
 	std::string ref_str = strs[0];
 	for (int i=0; i<n; ++i) {
@@ -1890,7 +1887,7 @@ bool GenUtils::less_vectors(const std::vector<int>& a,const std::vector<int>& b)
 }
 
 const std::vector<int> GenUtils::flat_2dclusters(int n, std::vector<std::vector<int> > clusters) {
-    vector<int> cluster_ids(n, 0);
+    std::vector<int> cluster_ids(n, 0);
     int ncluster = clusters.size();
     if (ncluster == 0)
         return cluster_ids;
@@ -1994,7 +1991,7 @@ void unique_to_normal_breaks(const std::vector<int>& u_val_breaks,
     }
 }
 
-std::vector<double>  GenUtils::NaturalBreaks(int num_cats, const vector<double>& data, vector<bool>& undef)
+std::vector<double>  GenUtils::NaturalBreaks(int num_cats, const std::vector<double>& data, std::vector<bool>& undef)
 {
 
     int num_obs = data.size();
@@ -2080,7 +2077,7 @@ std::vector<double>  GenUtils::NaturalBreaks(int num_cats, const vector<double>&
     return nat_breaks;
 }
 
-std::vector<double>  GenUtils::QuantileBreaks(int num_cats, const vector<double>& data, vector<bool>& undef) {
+std::vector<double>  GenUtils::QuantileBreaks(int num_cats, const std::vector<double>& data, std::vector<bool>& undef) {
 
     int num_obs = data.size();
     if (undef.size() == 0) {
@@ -2101,7 +2098,7 @@ std::vector<double>  GenUtils::QuantileBreaks(int num_cats, const vector<double>
     return breaks;
 }
 
-std::vector<double>  GenUtils::Hinge15Breaks(const vector<double>& data, vector<bool>& undef) {
+std::vector<double>  GenUtils::Hinge15Breaks(const std::vector<double>& data, std::vector<bool>& undef) {
 
     int num_cats = 6;
     int num_obs = data.size();
@@ -2128,7 +2125,7 @@ std::vector<double>  GenUtils::Hinge15Breaks(const vector<double>& data, vector<
     return breaks;
 }
 
-std::vector<double>  GenUtils::Hinge30Breaks(const vector<double>& data, vector<bool>& undef) {
+std::vector<double>  GenUtils::Hinge30Breaks(const std::vector<double>& data, std::vector<bool>& undef) {
 
     int num_cats = 6;
     int num_obs = data.size();
@@ -2155,7 +2152,7 @@ std::vector<double>  GenUtils::Hinge30Breaks(const vector<double>& data, vector<
     return breaks;
 }
 
-std::vector<double>  GenUtils::PercentileBreaks(const vector<double>& data, vector<bool>& undef) {
+std::vector<double>  GenUtils::PercentileBreaks(const std::vector<double>& data, std::vector<bool>& undef) {
 
     int num_cats = 6;
     int num_obs = data.size();
@@ -2180,7 +2177,7 @@ std::vector<double>  GenUtils::PercentileBreaks(const vector<double>& data, vect
     return breaks;
 }
 
-std::vector<double>  GenUtils::StddevBreaks(const vector<double>& data, vector<bool>& undef) {
+std::vector<double>  GenUtils::StddevBreaks(const std::vector<double>& data, std::vector<bool>& undef) {
 
     int num_cats = 6;
     int num_obs = data.size();

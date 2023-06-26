@@ -17,8 +17,6 @@
 #include "GalWeight.h"
 #include "GwtWeight.h"
 
-using namespace std;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // GalElement
@@ -330,7 +328,7 @@ void GalWeight::GetNbrStats()
 {
     // other
     int sum_nnbrs = 0;
-    vector<int> nnbrs_array;
+    std::vector<int> nnbrs_array;
     std::map<int, int> e_dict;
 
     for (int i=0; i<num_obs; i++) {
@@ -395,17 +393,17 @@ bool GalWeight::Save(const char* ofname,
     }
     size_t num_obs = (int) id_vec.size();
     out << "0 " << num_obs << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
 
     for (size_t i=0; i<num_obs; ++i) {
         out << id_vec[i];
-        out << " " << gal[i].Size() << endl;
+        out << " " << gal[i].Size() << std::endl;
         for (int cp=gal[i].Size(); --cp >= 0;) {
             out << id_vec[gal[i][cp]];
             if (cp > 0)
                 out << " ";
         }
-        out << endl;
+        out << std::endl;
     }
     return true;
 }
@@ -429,17 +427,17 @@ bool GalWeight::Save(const char* ofname,
 
     size_t num_obs = (int) id_vec.size();
     out << "0 " << num_obs << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
 
     for (size_t i=0; i<num_obs; ++i) {
         out << id_vec[i];
-        out << " " << gal[i].Size() << endl;
+        out << " " << gal[i].Size() << std::endl;
         for (int cp=gal[i].Size(); --cp >= 0;) {
             out << id_vec[gal[i][cp]];
             if (cp > 0)
                 out << " ";
         }
-        out << endl;
+        out << std::endl;
     }
     return true;
 }
@@ -453,15 +451,15 @@ void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs,
                                   bool cummulative)
 {
 	if (obs < 1 || distance <=1) return;
-	vector<vector<long> > X(obs);
+	std::vector<std::vector<long> > X(obs);
 	for (size_t i=0; i<obs; ++i) {
-		vector<set<long> > n_at_d(distance+1);
+		std::vector<std::set<long> > n_at_d(distance+1);
 		n_at_d[0].insert(i);
 		for (size_t j=0, sz=W[i].Size(); j<sz; ++j) {
 			n_at_d[1].insert(W[i][j]);
 		}
 		for (size_t d=2; d<=distance; ++d) {
-			for (set<long>::const_iterator it=n_at_d[d-1].begin();
+			for (std::set<long>::const_iterator it=n_at_d[d-1].begin();
 					 it!=n_at_d[d-1].end(); ++it)
 			{
 				for (size_t j=0, sz=W[*it].Size(); j<sz; ++j) {
@@ -480,10 +478,10 @@ void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs,
 		X[i].resize(sz_Xi);
 		size_t cnt=0;
 		for (size_t d=(cummulative ? 1 : distance); d<=distance; ++d) {
-			for (set<long>::const_iterator it=n_at_d[d].begin();
+			for (std::set<long>::const_iterator it=n_at_d[d].begin();
 					 it!=n_at_d[d].end(); ++it) { X[i][cnt++] = *it; }
 		}
-		sort(X[i].begin(), X[i].end(), greater<long>());
+		sort(X[i].begin(), X[i].end(), std::greater<long>());
 	}
 	for (size_t i=0; i<obs; ++i) {
 		W[i].SetSizeNbrs(X[i].size());
