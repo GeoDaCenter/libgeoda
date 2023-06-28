@@ -58,9 +58,9 @@ public:
     }
     int nextInt(int n) {
         if (n <=0) return 0;
-        int r =  (int)((n & -n) == n ? nextLong() & n - 1 // power of two
+        int r =  (int)((n & -n) == n ? (nextLong() & n) - 1 // power of two
                        : (unsigned long long)(((unsigned long long)nextLong() >> 32) * n) >> 32);
-        return r;
+        return r < 0 ? 0 : r;
     }
 
     long long nextLong() {
@@ -83,7 +83,7 @@ public:
         return ((unsigned long long)nextLong() >> 11) * nd;
 #endif
     }
-    
+
     std::vector<int> randomSample(int samplesize, int n)
     {
         std::vector<int> samples(samplesize);

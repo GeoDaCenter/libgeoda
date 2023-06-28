@@ -5,8 +5,6 @@
 #include <iomanip>
 #include <iostream>
 
-using namespace std;
-
 GwtElement::~GwtElement()
 {
 	if (data) delete [] data;
@@ -94,12 +92,12 @@ const std::vector<double> GwtWeight::GetNeighborWeights(int obs_idx)
 
 void GwtWeight::SetNeighbors(int id, const std::vector<int>& nbr_ids)
 {
-    // not implemented, since GAL will be used to create weights internally 
+    // not implemented, since GAL will be used to create weights internally
 }
 
 void GwtWeight::SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, const std::vector<double>& w)
 {
-    // not implemented, since GAL will be used to create weights internally 
+    // not implemented, since GAL will be used to create weights internally
 }
 
 bool GwtWeight::CheckNeighbor(int obs_idx, int nbr_idx)
@@ -131,7 +129,7 @@ void GwtWeight::GetNbrStats()
 {
     // others
     int sum_nnbrs = 0;
-    vector<int> nnbrs_array;
+    std::vector<int> nnbrs_array;
     std::map<int, int> e_dict;
     for (int i=0; i<num_obs; i++) {
         GwtNeighbor* nbrs = gwt[i].dt();
@@ -178,14 +176,14 @@ GwtWeight::Save(const char *ofname, const char *layer_name, const char *id_var_n
 
     int num_obs = (int) id_vec.size();
     out << "0 " << num_obs << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
 
     for (int i=0; i<num_obs; ++i) {
         for (long nbr=0; nbr<gwt[i].Size(); ++nbr) {
             const GwtNeighbor& current = gwt[i].elt(nbr);
             out << id_vec[i] << ' ' << id_vec[current.nbx];
-            out << ' ' << setprecision(9) << setw(18)
-                << current.weight << endl;
+            out << ' ' << std::setprecision(9) << std::setw(18)
+                << current.weight << std::endl;
         }
     }
     return true;
@@ -207,14 +205,14 @@ bool GwtWeight::Save(const char *ofname, const char *layer_name, const char *id_
 
     int num_obs = (int) id_vec.size();
     out << "0 " << num_obs << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
 
     for (int i=0; i<num_obs; ++i) {
         for (long nbr=0; nbr<gwt[i].Size(); ++nbr) {
             const GwtNeighbor& current = gwt[i].elt(nbr);
             out << id_vec[i] << ' ' << id_vec[current.nbx];
-            out << ' ' << setprecision(9) << setw(18)
-                << current.weight << endl;
+            out << ' ' << std::setprecision(9) << std::setw(18)
+                << current.weight << std::endl;
         }
     }
     return true;

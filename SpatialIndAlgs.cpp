@@ -13,10 +13,8 @@
 #include "SpatialIndAlgs.h"
 
 
-using namespace std;
-
-void SpatialIndAlgs::to_3d_centroids(const vector<pt_2d>& pt2d,
-                                     vector<pt_3d>& pt3d)
+void SpatialIndAlgs::to_3d_centroids(const std::vector<pt_2d>& pt2d,
+                                     std::vector<pt_3d>& pt3d)
 {
 	size_t obs = pt2d.size();
 	pt3d.resize(obs);
@@ -25,8 +23,8 @@ void SpatialIndAlgs::to_3d_centroids(const vector<pt_2d>& pt2d,
 	}
 }
 
-void SpatialIndAlgs::to_3d_centroids(const vector<pt_lonlat>& ptll,
-                                     vector<pt_3d>& pt3d)
+void SpatialIndAlgs::to_3d_centroids(const std::vector<pt_lonlat>& ptll,
+                                     std::vector<pt_3d>& pt3d)
 {
 	size_t obs = ptll.size();
 	pt3d.resize(obs);
@@ -68,7 +66,7 @@ void SpatialIndAlgs::default_test()
     // note: in Boost.Geometry WKT representation of a box is polygon
 
     // display results
-	stringstream ss;
+	std::stringstream ss;
     ss << "spatial query box:" << std::endl;
     ss << bg::wkt<box_2d>(query_box) << std::endl;
     ss << "spatial query result:" << std::endl;
@@ -93,10 +91,10 @@ void SpatialIndAlgs::default_test()
 
 void SpatialIndAlgs::print_rtree_stats(rtree_box_2d_t& rtree)
 {
-	stringstream ss;
-	ss << "Rtree stats:" << endl;
-	ss << "  size: " << rtree.size() << endl;
-	ss << "  empty?: " << rtree.empty() << endl;
+	std::stringstream ss;
+	ss << "Rtree stats:" << std::endl;
+	ss << "  size: " << rtree.size() << std::endl;
+	ss << "  empty?: " << rtree.empty() << std::endl;
 	box_2d bnds = rtree.bounds();
 	ss << "  bounds: " << bg::wkt<box_2d>(bnds);
 }
@@ -117,7 +115,7 @@ void SpatialIndAlgs::query_all_boxes(rtree_box_2d_t& rtree)
 		const box_2d_val& v = *it;
 		pt_2d c;
 		boost::geometry::centroid(v.first, c);
-		vector<box_2d_val> q;
+		std::vector<box_2d_val> q;
 		rtree.query(bgi::intersects(v.first), std::back_inserter(q));
 		int qcnt=0;
 		BOOST_FOREACH(box_2d_val const& w, q) {
@@ -145,7 +143,7 @@ void SpatialIndAlgs::knn_query(const rtree_pt_2d_t& rtree, int nn)
 	for (it= rtree.qbegin(bgi::intersects(rtree.bounds())); it != rtree.qend(); ++it)
 	{
 		const pt_2d_val& v = *it;
-		vector<pt_2d_val> q;
+		std::vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		BOOST_FOREACH(pt_2d_val const& w, q) {
             if (w.second == v.second) {
@@ -170,9 +168,9 @@ GwtWeight* SpatialIndAlgs::knn_build(const std::vector<gda::PointContents*>& poi
 	if (is_arc) {
 		rtree_pt_3d_t rtree;
 		{
-			vector<pt_3d> pts;
+			std::vector<pt_3d> pts;
 			{
-				vector<pt_lonlat> ptll(nobs);
+				std::vector<pt_lonlat> ptll(nobs);
 				for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(points[i]->x, points[i]->y);
 				to_3d_centroids(ptll, pts);
 			}
@@ -183,7 +181,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const std::vector<gda::PointContents*>& poi
 	} else {
 		rtree_pt_2d_t rtree;
 		{
-			vector<pt_2d> pts(nobs);
+			std::vector<pt_2d> pts(nobs);
 			for (size_t i=0; i<nobs; ++i) pts[i] = pt_2d(points[i]->x, points[i]->y);
 			fill_pt_rtree(rtree, pts);
 		}
@@ -207,9 +205,9 @@ GwtWeight* SpatialIndAlgs::knn_build_sub(const std::vector<gda::PointContents*>&
     if (is_arc) {
         rtree_pt_3d_t rtree;
         {
-            vector<pt_3d> pts;
+            std::vector<pt_3d> pts;
             {
-                vector<pt_lonlat> ptll(nobs);
+                std::vector<pt_lonlat> ptll(nobs);
                 for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(points[i]->x, points[i]->y);
                 to_3d_centroids(ptll, pts);
             }
@@ -219,7 +217,7 @@ GwtWeight* SpatialIndAlgs::knn_build_sub(const std::vector<gda::PointContents*>&
 
     } else {
         rtree_pt_2d_t rtree;
-            vector<pt_2d> pts(nobs);
+            std::vector<pt_2d> pts(nobs);
             for (size_t i=0; i<nobs; ++i) pts[i] = pt_2d(points[i]->x, points[i]->y);
             fill_pt_rtree(rtree, pts);
         gwt = knn_build_sub(rtree, pts, nn, start, end, is_inverse, power, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
@@ -277,7 +275,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 		const pt_2d_val& v = *it;
 		size_t obs = v.second;
         // each point "v" with index "obs"
-		vector<pt_2d_val> q;
+		std::vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
         e.alloc( kernel.empty() ?  nn : k);
@@ -331,7 +329,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 	return Wp;
 }
 
-GwtWeight* SpatialIndAlgs::knn_build_sub(const rtree_pt_2d_t& rtree,vector<pt_2d>& pts, int nn, int start, int end, bool is_inverse, double power, const std::string& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
+GwtWeight* SpatialIndAlgs::knn_build_sub(const rtree_pt_2d_t& rtree,std::vector<pt_2d>& pts, int nn, int start, int end, bool is_inverse, double power, const std::string& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
     GwtWeight* Wp = new GwtWeight;
     Wp->num_obs = end - start + 1;
@@ -348,7 +346,7 @@ GwtWeight* SpatialIndAlgs::knn_build_sub(const rtree_pt_2d_t& rtree,vector<pt_2d
         const pt_2d& p = pts[i];
         size_t obs = i - start;
         // each point "v" with index "obs"
-        vector<pt_2d_val> q;
+        std::vector<pt_2d_val> q;
         rtree.query(bgi::nearest(p, k), std::back_inserter(q));
         GwtElement& e = Wp->gwt[obs];
         e.alloc(q.size());
@@ -415,7 +413,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
         int cnt=0;
 		const pt_3d_val& v = *it;
 		size_t obs = v.second;
-		vector<pt_3d_val> q;
+		std::vector<pt_3d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
         e.alloc( kernel.empty() ? nn : k);
@@ -534,10 +532,10 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 		guess = lower + (upper-lower)/2.0;
 		guess_avg = est_avg_num_neigh_thresh(rtree, guess);
 		{
-			stringstream ss;
-			ss << "\niter: " << iters << "   target avg: " << avg_n << endl;
-			ss << "  lower: " << lower << ", lower_avg: " << lower_avg << endl;
-			ss << "  guess: " << guess << ", guess_avg: " << guess_avg << endl;
+			std::stringstream ss;
+			ss << "\niter: " << iters << "   target avg: " << avg_n << std::endl;
+			ss << "  lower: " << lower << ", lower_avg: " << lower_avg << std::endl;
+			ss << "  guess: " << guess << ", guess_avg: " << guess_avg << std::endl;
 			ss << "  upper: " << upper << ", upper_avg: " << upper_avg;
 		}
 		if (guess_avg == avg_n) {
@@ -573,7 +571,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree,
 {
 	using namespace GenGeomAlgs;
 
-	vector<pt_2d_val> query_pts;
+	std::vector<pt_2d_val> query_pts;
 	rtree.query(bgi::intersects(rtree.bounds()), back_inserter(query_pts));
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
@@ -585,7 +583,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree,
 		double x = v.first.get<0>();
 		double y = v.first.get<1>();
 		box_2d b(pt_2d(x-th, y-th), pt_2d(x+th, y+th));
-		vector<pt_2d_val> q;
+		std::vector<pt_2d_val> q;
 		rtree.query(bgi::intersects(b), std::back_inserter(q));
 		BOOST_FOREACH(const pt_2d_val& w, q) {
 			if (w.second != v.second && bg::distance(v.first, w.first) <= th)
@@ -643,7 +641,7 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 	if (x.size() != y.size() || x.size() == 0 || y.size() == 0) { return -1; }
 	const size_t pts_sz = x.size();
 	const size_t all_pairs_sz = (pts_sz*(pts_sz-1))/2;
-	vector<double> v;
+	std::vector<double> v;
 
 	if (all_pairs_sz <= max_iters) {
 		v.resize((pts_sz*(pts_sz-1))/2);
@@ -669,7 +667,7 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 					ComputeEucDist(x[i], y[i], x[j], y[j]));
 			//if (!Gda::is_finite(v[t]) || Gda::is_nan(v[t])) {
 			if ( ((v[t] - v[t]) != 0) || (v[t] != v[t])) {
-				stringstream ss;
+				std::stringstream ss;
 				ss << "d(i="<<i<<",j="<<j<<"): "<<v[t];
 			}
 
@@ -694,9 +692,9 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
 		double u_th = RadToUnitDist(r_th);
 		rtree_pt_3d_t rtree;
 		{
-			vector<pt_3d> pts;
+			std::vector<pt_3d> pts;
 			{
-				vector<pt_lonlat> ptll(nobs);
+				std::vector<pt_lonlat> ptll(nobs);
 				for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(x[i], y[i]);
 				to_3d_centroids(ptll, pts);
 			}
@@ -706,7 +704,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
 	} else {
 		rtree_pt_2d_t rtree;
 		{
-			vector<pt_2d> pts(nobs);
+			std::vector<pt_2d> pts(nobs);
             for (size_t i=0; i<nobs; ++i) {
                 pts[i] = pt_2d(x[i], y[i]);
             }
@@ -737,10 +735,10 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 		double y = v.first.get<1>();
 		box_2d b(pt_2d(x-th, y-th), pt_2d(x+th, y+th));
 		size_t obs = v.second;
-		vector<pt_2d_val> q;
+		std::vector<pt_2d_val> q;
 		rtree.query(bgi::intersects(b), std::back_inserter(q));
 		size_t lcnt = 0;
-		list<pt_2d_val> l;
+		std::list<pt_2d_val> l;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
 			if (w.second != v.second &&
 				bg::distance(v.first, w.first) <= th)
@@ -784,7 +782,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 {
 	using namespace GenGeomAlgs;
 
-	vector<pt_3d_val> query_pts;
+	std::vector<pt_3d_val> query_pts;
 	rtree.query(bgi::intersects(rtree.bounds()), back_inserter(query_pts));
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
@@ -797,7 +795,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 		double y = v.first.get<1>();
 		double z = v.first.get<2>();
 		box_3d b(pt_3d(x-th, y-th, z-th), pt_3d(x+th, y+th, z+th));
-		vector<pt_3d_val> q;
+		std::vector<pt_3d_val> q;
 		rtree.query(bgi::intersects(b), std::back_inserter(q));
 		BOOST_FOREACH(const pt_3d_val& w, q) {
 			if (w.second != v.second && bg::distance(v.first, w.first) <= th)
@@ -823,13 +821,13 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 	Wp->gwt = new GwtElement[Wp->num_obs];
 
 	{
-		stringstream ss;
-		ss << "In thresh_build for unit sphere" << endl;
-		ss << "th : " << th << endl;
-		ss << "Input th (unit sphere secant distance): " << th << endl;
+		std::stringstream ss;
+		ss << "In thresh_build for unit sphere" << std::endl;
+		ss << "th : " << th << std::endl;
+		ss << "Input th (unit sphere secant distance): " << th << std::endl;
 		double r = UnitDistToRad(th);
-		ss << "Input th (unit sphere rad): " << r << endl;
-		ss << "Input th (earth km): " << EarthRadToKm(r) << endl;
+		ss << "Input th (unit sphere rad): " << r << std::endl;
+		ss << "Input th (earth km): " << EarthRadToKm(r) << std::endl;
 		ss << "Input th (earth mi): " << EarthRadToMi(r);
 	}
 	int cnt=0;
@@ -845,10 +843,10 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 		UnitToLongLatDeg(vx, vy, vz, lon_v, lat_v);
 		box_3d b(pt_3d(vx-th, vy-th, vz-th), pt_3d(vx+th, vy+th, vz+th));
 		size_t obs = v.second;
-		vector<pt_3d_val> q;
+		std::vector<pt_3d_val> q;
 		rtree.query(bgi::intersects(b), std::back_inserter(q));
 		size_t lcnt = 0;
-		list<pt_3d_val> l;
+		std::list<pt_3d_val> l;
 		BOOST_FOREACH(pt_3d_val const& w, q) {
 			if (w.second != v.second &&
 				bg::distance(v.first, w.first) <= th)
@@ -906,9 +904,9 @@ double SpatialIndAlgs::find_max_1nn_dist(const std::vector<double>& x,
 	if (is_arc) {
 		rtree_pt_3d_t rtree;
 		{
-			vector<pt_3d> pts;
+			std::vector<pt_3d> pts;
 			{
-				vector<pt_lonlat> ptll(nobs);
+				std::vector<pt_lonlat> ptll(nobs);
 				for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(x[i], y[i]);
 				to_3d_centroids(ptll, pts);
 			}
@@ -919,7 +917,7 @@ double SpatialIndAlgs::find_max_1nn_dist(const std::vector<double>& x,
 	} else {
 		rtree_pt_2d_t rtree;
 		{
-			vector<pt_2d> pts(nobs);
+			std::vector<pt_2d> pts(nobs);
 			for (size_t i=0; i<nobs; ++i) pts[i] = pt_2d(x[i], y[i]);
 			fill_pt_rtree(rtree, pts);
 		}
@@ -935,13 +933,13 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_2d_t& rtree,
 {
 	const int k=2;
 	size_t obs = rtree.size();
-	vector<double> d(obs);
+	std::vector<double> d(obs);
 	for (rtree_pt_2d_t::const_query_iterator it =
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
 		const pt_2d_val& v = *it;
-		vector<pt_2d_val> q;
+		std::vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		BOOST_FOREACH(pt_2d_val const& w, q) {
 			if (w.second == v.second) continue;
@@ -964,13 +962,13 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_3d_t& rtree,
 {
 	using namespace GenGeomAlgs;
 	size_t obs = rtree.size();
-	vector<double> d(obs);
+	std::vector<double> d(obs);
 	for (rtree_pt_3d_t::const_query_iterator it =
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
 		const pt_3d_val& v = *it;
-		vector<pt_3d_val> q;
+		std::vector<pt_3d_val> q;
 		rtree.query(bgi::nearest(v.first, 2), std::back_inserter(q));
 		BOOST_FOREACH(pt_3d_val const& w, q) {
 			if (w.second == v.second) continue;
@@ -1008,7 +1006,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_lonlat_t& rtree, int nn)
 	{
 		const pt_lonlat_val& v = *it;
 		size_t obs = v.second;
-		vector<pt_lonlat_val> q;
+		std::vector<pt_lonlat_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
 		e.alloc(q.size());
@@ -1061,14 +1059,14 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
     }
 
     out << "0" << " " << num_obs << " " << layer_name;
-    out << " " << vname << endl;
+    out << " " << vname << std::endl;
 
     for (size_t i=0; i<num_obs; ++i) {
         for (long nbr=0, sz=g[i].Size(); nbr<sz; ++nbr) {
             GwtNeighbor current=g[i].elt(nbr);
             double w = current.weight;
             out << id_vec[i] << ' ' << id_vec[current.nbx];
-			out << ' ' << setprecision(9) << w << endl;
+			out << ' ' << std::setprecision(9) << w << std::endl;
         }
     }
     out.close();
@@ -1083,7 +1081,7 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_2d_t& rtree,
 	    double x = pts[i].get<0>();
 	    double y = pts[i].get<1>();
 	    pt_2d p(x, y);
-		rtree.insert(make_pair(p, i));
+		rtree.insert(std::make_pair(p, i));
 	}
 }
 
@@ -1095,7 +1093,7 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_lonlat_t& rtree,
         double x = pts[i].get<0>();
         double y = pts[i].get<1>();
         pt_lonlat p(x, y);
-		rtree.insert(make_pair(p, i));
+		rtree.insert(std::make_pair(p, i));
 	}
 }
 
@@ -1108,7 +1106,7 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_3d_t& rtree,
         double y = pts[i].get<1>();
         double z = pts[i].get<2>();
         pt_3d p(x, y, z);
-		rtree.insert(make_pair(p, i));
+		rtree.insert(std::make_pair(p, i));
 	}
 }
 

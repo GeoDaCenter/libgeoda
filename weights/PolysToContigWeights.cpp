@@ -5,9 +5,6 @@
 #include "../GeoDaSet.h"
 #include "PolysToContigWeights.h"
 
-using namespace std;
-
-
 /*
  BasePartition
  */
@@ -495,7 +492,7 @@ GalElement* PolysToContigWeights(gda::MainMap& main, bool is_queen,
 	gOffset = 0;
 
 	//MakeFull(gl, gRecords);
-    vector<set<long> > G(gRecords);
+    std::vector<std::set<long> > G(gRecords);
     for (long i=0; i<gRecords; ++i) {
         for (size_t j=0, sz=gl[i].Size(); j<sz; ++j) {
             G[i].insert(gl[i][j]);
@@ -509,7 +506,7 @@ GalElement* PolysToContigWeights(gda::MainMap& main, bool is_queen,
         }
         gl[i].SetSizeNbrs(G[i].size());
         size_t cnt = 0;
-        for (set<long>::iterator it=G[i].begin(); it!=G[i].end(); ++it) {
+        for (std::set<long>::iterator it=G[i].begin(); it!=G[i].end(); ++it) {
             gl[i].SetNbr(cnt++, *it);
         }
         gl[i].SortNbrs();

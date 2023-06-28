@@ -4,20 +4,20 @@
  * Author: Tomasz Sowa <t.sowa@ttmath.org>
  */
 
-/* 
+/*
  * Copyright (c) 2006-2009, Tomasz Sowa
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- *    
+ *
  *  * Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *    
+ *
  *  * Neither the name Tomasz Sowa nor the names of contributors to this
  *    project may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
@@ -94,7 +94,7 @@ namespace ttmath
 			// warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead.
 			#endif
 
-			sprintf(buffer, "TTMATH_LOCK_%ul", (unsigned long)GetCurrentProcessId());
+			snprintf(buffer, 50, "TTMATH_LOCK_%ul", (unsigned long)GetCurrentProcessId());
 
 			#ifdef _MSC_VER
 			#pragma warning (default : 4996)
@@ -162,7 +162,7 @@ namespace ttmath
 
 
 	/*!
-		ttmath_mutex will be defined by TTMATH_MULTITHREADS_HELPER macro 
+		ttmath_mutex will be defined by TTMATH_MULTITHREADS_HELPER macro
 	*/
 	extern pthread_mutex_t ttmath_mutex;
 
