@@ -63,10 +63,10 @@ std::vector<int> BUILD::run(const std::vector<int>& ids, int k)
                 continue;
             }
             double sum = 0., v;
-            for (int k=0; k<nn; ++k) {
-                v = std::min(dist->getDistance(ids[j], ids[k]), mindist[ids[k]]);
+            for (int m=0; m<nn; ++m) {
+                v = std::min(dist->getDistance(ids[j], ids[m]), mindist[ids[m]]);
                 sum += v;
-                tempd[ ids[k] ]  =  v;
+                tempd[ ids[m] ]  =  v;
             }
             if(sum < best) {
                 best = sum;
