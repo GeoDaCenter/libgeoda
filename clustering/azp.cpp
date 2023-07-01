@@ -1186,7 +1186,7 @@ void MaxpRegion::PhaseConstructionThreaded()
             perror("Thread create failed.");
         }
     }
-    for (int j = 0; j < nCPUs; j++) {
+    for (int j = 0; j < tot_threads; j++) {
         pthread_join(threadPool[j], NULL);
     }
     delete[] args;
@@ -1242,7 +1242,7 @@ void MaxpRegion::PhaseLocalImprovementThreaded()
             perror("Thread create failed.");
         }
     }
-    for (int j = 0; j < nCPUs; j++) {
+    for (int j = 0; j < tot_threads; j++) {
         pthread_join(threadPool[j], NULL);
     }
     delete[] args;
