@@ -32,6 +32,8 @@
 #ifndef __GEODA_CENTER_GEN_GEOM_ALGS_H__
 #define __GEODA_CENTER_GEN_GEOM_ALGS_H__
 
+// fix boost error 
+#define __EDG_VERSION__ 242
 
 namespace GenGeomAlgs {
 	const double pi = 3.141592653589793238463;
