@@ -142,3 +142,71 @@ bool gda_rateStandardizeEB(const std::vector<double>& P,
     delete [] p;
     return !has_undef;
 }
+
+bool gda_rateSmootherEBS(const std::vector<double> &P,
+                           const std::vector<double> &E,
+                           std::vector<double> &results,
+                           std::vector<bool> &undefined) {
+    int obs = (int)P.size();
+
+    if (results.size() != obs) {
+        results.resize(obs);
+    }
+
+    bool has_undef = false;
+    double SP = 0.0, SE = 0.0;
+    double *pi_raw = new double[obs];
+    int i = 0;
+    int valid_obs = 0;
+
+    for (i=0; i<obs; i++) {
+        if (undefined[i]) {
+            pi_raw[i] = 0;
+            results[i] = 0;
+            has_undef = true;
+        } else {
+            valid_obs += 1;
+            SP += P[i];
+            SE += E[i];
+            if (P[i] == 0) {
+                undefined[i] = true;
+                results[i] = 0;
+                has_undef = true;
+            } else {
+            pi_raw[i] = E[i] / P[i];
+            }
+        }
+    }
+
+    double theta1 = 1.0, theta2 = 0.0;
+
+    if (SP > 0) {
+        theta1 = SE / SP;
+    }
+
+    double p_bar = SP / valid_obs;
+    double q1 = 0, w = 0;
+
+    for (i=0; i<obs; i++) {
+        if (!undefined[i]) {
+            q1 += P[i] * (pi_raw[i] - theta1) * (pi_raw[i] - theta1);
+        }
+    }
+
+    theta2 = (q1 / SP) - (theta1 / p_bar);
+
+    if (theta2 < 0) {
+        theta2 = 0;
+    }
+
+    for (i=0; i<obs; i++) {
+        if (!undefined[i]) {
+            q1 = (theta2 + (theta1 / P[i]));
+            w = q1 > 0 ? theta2 / q1 : 1;
+            results[i] = (w * pi_raw[i]) + ((1 - w) * theta1);
+        }
+    }
+
+    delete[] pi_raw;
+    return !has_undef;
+}
