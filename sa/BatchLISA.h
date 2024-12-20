@@ -11,11 +11,11 @@
 #endif
 
 #include <cstdint>  // C++ header - for std:: namespace
-#include <stdint.h> // C header - guarantees global namespace
 
-#if !defined(__UINT64_TYPE__) && !defined(uint64_t)
+#if defined(__MUSL__) && !defined(__UINT64_TYPE__) && !defined(uint64_t)
 typedef unsigned long long uint64_t;
 #endif
+
 #include <list>
 #include <string>
 
