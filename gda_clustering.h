@@ -32,7 +32,7 @@ const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
                                                     const std::vector<int>& init_regions,
                                                     const std::string &distance_method,
                                                     int rnd_seed,
-                                                    double** dist_matrix);
+                                                    double** dist_matrix = 0);
 
 /**
  *
@@ -61,7 +61,7 @@ const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
                                                 const std::vector<int>& init_regions,
                                                 const std::string &distance_method,
                                                 int rnd_seed,
-                                                double** dist_matrix);
+                                                double** dist_matrix = 0);
 
 /**
  *
@@ -90,7 +90,7 @@ const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
                                                   const std::vector<int>& init_regions,
                                                   const std::string &distance_method,
                                                   int rnd_seed,
-                                                  double** dist_matrix);
+                                                  double** dist_matrix = 0);
 
 /**
  *
@@ -116,7 +116,7 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
                                                      const std::string &distance_method,
                                                      int rnd_seed,
                                                      int cpu_threads,
-                                                     double** dist_matrix);
+                                                     double** dist_matrix = 0);
 
 
 /**
@@ -147,7 +147,7 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
                                                  const std::string &distance_method,
                                                  int rnd_seed,
                                                  int cpu_threads,
-                                                 double** dist_matrix);
+                                                 double** dist_matrix = 0);
 
 /**
  *
@@ -177,7 +177,7 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
                                                    const std::string &distance_method,
                                                    int rnd_seed,
                                                    int cpu_threads,
-                                                   double** dist_matrix);
+                                                   double** dist_matrix = 0);
 
 /**
  *
@@ -203,7 +203,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 double min_bound,
                                                 int rand_seed,
                                                 int cpu_threads,
-                                                double** dist_matrix);
+                                                double** dist_matrix = 0);
 
 /**
  *
@@ -227,7 +227,7 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 double min_bound,
                                                 int rand_seed,
                                                 int cpu_threads,
-                                                double** dist_matrix);
+                                                double** dist_matrix = 0);
 
 
 /**
@@ -252,7 +252,7 @@ const std::vector<std::vector<int> > gda_schc(unsigned int k,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
-                                                double** dist_matrix);
+                                                double** dist_matrix = 0);
 
 /**
  *
