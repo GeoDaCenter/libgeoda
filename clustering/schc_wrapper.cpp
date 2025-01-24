@@ -55,9 +55,16 @@ schc_wrapper::schc_wrapper(unsigned int k,
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
             // lower triangular half of the distance matrix
-            double** distances = dist_matrix;
-            if (!distances) distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
-            //double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
+            double** ragged_distances = dist_matrix;
+            if (!ragged_distances) ragged_distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
+
+            // convert ragged distance matrix to full distance matrix
+            bool isSqrt = method == 2 ? true : false; // sqrt for average linkage
+            double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs, isSqrt);
+
+            // free ragged distance matrix
+            for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
+            free(ragged_distances);
 
             // call redcap
             std::vector<bool> undefs(num_obs, false); // not used
@@ -109,24 +116,26 @@ schc_wrapper::schc_wrapper(unsigned int k,
                     }
                 }
 
-                std::vector<int> clusters;
                 int* clusterid = new int[num_obs];
 
-                cuttree (num_obs, htree, k, clusterid);
+                double cut_distance = cuttree (num_obs, htree, k, clusterid);
 
-                delete[] htree;
-
+                std::vector<int> clusters;
                 for (int i=0; i<num_obs; i++) {
                     clusters.push_back(clusterid[i]+1);
                 }
                 delete[] clusterid;
                 clusterid = NULL;
+                delete[] htree;
+                htree = NULL;
 
                 // sort result
                 cluster_ids.resize(k);
                 for (int i=0; i < clusters.size(); i++) {
                     cluster_ids[ clusters[i] - 1 ].push_back(i);
                 }
+                std::sort(cluster_ids.begin(), cluster_ids.end(),
+                          GenUtils::less_vectors);
             }
 
             if (weight) delete[] weight;

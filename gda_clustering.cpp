@@ -319,6 +319,9 @@ double gda_totalsumofsquare(const std::vector<std::vector<double> >& vals)
 std::vector<double> gda_withinsumofsquare(const std::vector<std::vector<int> >& solution,
                              const std::vector<std::vector<double> >& _data)
 {
+    // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
+    // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
+    // on. cluster_ids does not have to be exhaustive
     size_t cols = _data.size();
 
     // standardize data
@@ -329,21 +332,24 @@ std::vector<double> gda_withinsumofsquare(const std::vector<std::vector<int> >& 
     }
 
     std::vector<double> within_ss;
-    for (size_t c=0; c<cols; ++c) {
-        double ss = 0;
-        for (size_t i=0; i<solution.size(); ++i) {
+
+    // compute within sum of squares for each cluster
+    for (size_t i = 0; i < solution.size(); ++i) {
+        const std::vector<int>& ids = solution[i];
+        double ssq = 0;
+        for (size_t c = 0; c < cols; ++c) {
             std::vector<double> vals;
-            for (size_t j = 0; j < solution[i].size(); ++j) {
-                size_t r = solution[i][j];
+            for (size_t j = 0; j < ids.size(); ++j) {
+                size_t r = ids[j];
                 vals.push_back(data[c][r]);
             }
-            ss += gda_sumofsquares(vals);
+            ssq += gda_sumofsquares(vals);
         }
-        within_ss.push_back(ss);
+        within_ss.push_back(ssq);
     }
 
     return within_ss;
-}
+    }
 
 double gda_totalwithinsumofsquare(const std::vector<std::vector<int> >& solution,
                              const std::vector<std::vector<double> >& _data)

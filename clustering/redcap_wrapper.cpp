@@ -30,7 +30,9 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             double *_bound_vals = 0;
             if ((int)bound_vals.size() == num_obs) {
                 _bound_vals = new double[num_obs];
-                for (int i = 0; i < num_obs; ++i) _bound_vals[i] = bound_vals[i];
+                for (int i = 0; i < num_obs; ++i) {
+                    _bound_vals[i] = bound_vals[i];
+                }
             }
             // get distance matrix
             int n_cols = data.size();
@@ -56,9 +58,12 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
             // lower triangle distance matrix
-            double** distances = dist_matrix;
-            if (!distances) distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
-            //double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
+            double** ragged_distances = dist_matrix;
+            if (!ragged_distances) ragged_distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
+
+            // convert ragged distance matrix to full distance matrix
+            bool isSqrt = redcap_method == 2 ? true : false; // sqrt for average linkage
+            double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs, isSqrt);
 
             // call redcap
             std::vector<bool> undefs(num_obs, false); // not used
