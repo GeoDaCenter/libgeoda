@@ -92,8 +92,8 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             if (weight) delete[] weight;
             if (_bound_vals) delete[] _bound_vals;
             if (distances && dist_matrix == NULL) {
-                for (int i = 1; i < num_obs; i++) free(distances[i]);
-                free(distances);
+                for (int i = 1; i < num_obs; i++) delete[] distances[i];
+                delete[] distances;
             }
             if (matrix) {
                 for (int i = 0; i < num_obs; ++i) delete[] matrix[i];
