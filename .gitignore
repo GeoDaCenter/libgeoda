@@ -33,3 +33,4 @@
 .DS_Store
 *.tmp
 .vscode/settings.json
+_codeql_detected_source_root
