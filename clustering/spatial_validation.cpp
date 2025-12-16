@@ -9,6 +9,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
 
 #include "../GdaConst.h"
 #include "../weights/GeodaWeight.h"
