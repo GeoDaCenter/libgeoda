@@ -59,7 +59,11 @@ schc_wrapper::schc_wrapper(unsigned int k,
             if (!ragged_distances) ragged_distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
 
             // convert ragged distance matrix to full distance matrix
-            bool isSqrt = method == 2 ? true : false; // sqrt for average linkage
+            // fullRaggedMatrix() undoes the squaring that distancematrix() applies to
+            // Euclidean distances: every linkage but Ward works on distances, Ward on
+            // squared ones (ward.D2). Manhattan comes back as sqrt(sum|d|), and a
+            // precomputed dist_matrix is used as it is given.
+            bool isSqrt = method != 3 && dist_matrix == 0 && dist == 'e'; // 3 == ward
             double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs, isSqrt);
 
             // free ragged distance matrix
