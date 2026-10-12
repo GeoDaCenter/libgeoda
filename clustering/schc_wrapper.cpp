@@ -62,9 +62,12 @@ schc_wrapper::schc_wrapper(unsigned int k,
             bool isSqrt = method == 2 ? true : false; // sqrt for average linkage
             double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs, isSqrt);
 
-            // free ragged distance matrix
-            for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
-            free(ragged_distances);
+            // free ragged distance matrix, but only if we allocated it here:
+            // a distance matrix passed in by the caller is owned by the caller
+            if (dist_matrix == NULL) {
+                for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
+                free(ragged_distances);
+            }
 
             // call redcap
             std::vector<bool> undefs(num_obs, false); // not used
@@ -141,7 +144,7 @@ schc_wrapper::schc_wrapper(unsigned int k,
             if (weight) delete[] weight;
             if (_bound_vals) delete[] _bound_vals;
             if (distances) {
-                for (int i = 1; i < num_obs; i++) delete[] distances[i];
+                for (int i = 0; i < num_obs; i++) delete[] distances[i];
                 delete[] distances;
             }
             if (matrix) {
