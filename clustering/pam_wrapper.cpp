@@ -70,3 +70,7 @@ pam_wrapper::pam_wrapper(int k,
         delete[] matrix;
     }
 }
+
+pam_wrapper::~pam_wrapper()
+{
+}
