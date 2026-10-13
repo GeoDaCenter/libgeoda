@@ -79,8 +79,12 @@ void maxp_wrapper::Run() {
                 cluster_ids.push_back(it->second);
             }
 
-            for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
-            free(ragged_distances);
+            // free the distance matrix, but only if we allocated it here:
+            // a distance matrix passed in by the caller is owned by the caller
+            if (dist_matrix == NULL) {
+                for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
+                free(ragged_distances);
+            }
 
             delete dm;
         }
