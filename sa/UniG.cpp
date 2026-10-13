@@ -59,7 +59,7 @@ void UniG::ComputeLoalSA() {
             cluster_vec[i] = CLUSTER_UNDEFINED;
 
         } else {
-            if (weights->GetNbrSize(i) == 0) {
+            if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
                 cluster_vec[i] = CLUSTER_NEIGHBORLESS;
             } else {
                 double lag = 0;
@@ -70,6 +70,11 @@ void UniG::ComputeLoalSA() {
                         lag += data[ nbrs[j] ];
                         nn += 1;
                     }
+                }
+                if (nn == 0) {
+                    cluster_vec[i] = CLUSTER_NEIGHBORLESS;
+                    lisa_vec[i] = 0;
+                    continue;
                 }
                 double xd_i = sum_x - data[i];
                 if (xd_i == 0) {
@@ -88,17 +93,19 @@ void UniG::ComputeLoalSA() {
     unsigned int ng = 0;
     double mean_g = 0;
     for (int i=0; i<num_obs; ++i) {
-        if (weights->GetNbrSize(i) == 0 || undefs[i] || G_defined[i] == false) {
+        if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i)) || undefs[i] || G_defined[i] == false || cluster_vec[i] == CLUSTER_NEIGHBORLESS) {
             continue;
         }
         mean_g += lisa_vec[i];
         ng += 1;
     }
-    mean_g = mean_g / ng;
+    if (ng > 0) {
+        mean_g = mean_g / ng;
+    }
 
     // assign cluster
     for (int i=0; i<num_obs; ++i) {
-        if (weights->GetNbrSize(i) == 0 || undefs[i] || G_defined[i] == false) {
+        if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i)) || undefs[i] || G_defined[i] == false || cluster_vec[i] == CLUSTER_NEIGHBORLESS) {
             continue;
         }
         if (lisa_vec[i] >= mean_g) {
@@ -184,11 +191,14 @@ std::vector<int> UniG::GetClusterIndicators() {
     double cutoff = GetSignificanceCutoff();
 
     for (int i=0; i<num_obs; i++) {
-        if ((const unsigned long)cluster_vec[i] == CLUSTER_UNDEFINED &&
+        if ((const unsigned long)cluster_vec[i] == CLUSTER_UNDEFINED ||
             (const unsigned long)cluster_vec[i] == CLUSTER_NEIGHBORLESS)
+        {
+            clusters[i] = cluster_vec[i];
             continue;
+        }
 
-        if (sig_local_vec[i] > cutoff) {
+        if (sig_local_vec[i] > cutoff || sig_local_vec[i] < 0) {
             clusters[i] = CLUSTER_NOT_SIG;
         } else {
             clusters[i] = cluster_vec[i];

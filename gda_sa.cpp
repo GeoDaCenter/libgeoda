@@ -10,6 +10,7 @@
 #include "sa/UniGstar.h"
 #include "sa/UniJoinCount.h"
 #include "sa/UniLocalMoran.h"
+#include "sa/UniLOSH.h"
 #include "sa/MultiGeary.h"
 #include "sa/MultiJoinCount.h"
 #include "sa/BatchLocalMoran.h"
@@ -201,9 +202,9 @@ LISA *gda_localjoincount(GeoDaWeight *w,
 }
 
 LISA *gda_localmultijoincount(GeoDaWeight *w,
-                         const std::vector<std::vector<double> > &data,
-                         const std::vector<std::vector<bool> > &undefs,
-                         double significance_cutoff, int nCPUs, int perm, const std::string& perm_method,  int last_seed)
+                          const std::vector<std::vector<double> > &data,
+                          const std::vector<std::vector<bool> > &undefs,
+                          double significance_cutoff, int nCPUs, int perm, const std::string& perm_method,  int last_seed)
 {
     if (w == 0)
         return 0;
@@ -214,6 +215,25 @@ LISA *gda_localmultijoincount(GeoDaWeight *w,
     return jc;
 }
 
+LISA *gda_locallosh(GeoDaWeight *w,
+                     const std::vector<double> &data,
+                     const std::vector<bool> &undefs,
+                     double significance_cutoff, int nCPUs, int perm, const std::string& perm_method,  int last_seed,
+                     double a)
+{
+    if (w == 0)
+        return 0;
+
+    int num_obs = w->num_obs;
+
+    std::vector<bool> copy_undefs = undefs;
+    if (copy_undefs.empty())
+    {
+        copy_undefs.resize(num_obs, false);
+    }
+    UniLOSH *losh = new UniLOSH(num_obs, w, data, copy_undefs, significance_cutoff, nCPUs, perm, perm_method, last_seed, a);
+    return losh;
+}
 double gda_fdr(LISA *lisa, double current_p)
 {
     if (lisa == 0)

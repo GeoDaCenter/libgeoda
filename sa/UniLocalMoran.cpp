@@ -56,7 +56,7 @@ void UniLocalMoran::ComputeLoalSA() {
             cluster_vec[i] = CLUSTER_UNDEFINED;
 
         } else {
-            if (weights->GetNbrSize(i) == 0) {
+            if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
                 cluster_vec[i] = CLUSTER_NEIGHBORLESS;
             } else {
                 double sp_lag = 0;
@@ -68,15 +68,18 @@ void UniLocalMoran::ComputeLoalSA() {
                         nn += 1;
                     }
                 }
-                sp_lag = sp_lag / nn;
-                lag_vec[i] = sp_lag;
-                lisa_vec[i] = data[i] * sp_lag;
-                // assign the cluster
-                if (data[i] > 0 && sp_lag < 0) cluster_vec[i] = CLUSTER_HIGHLOW;
-                else if (data[i] < 0 && sp_lag > 0) cluster_vec[i] = CLUSTER_LOWHIGH;
-                else if (data[i] < 0 && sp_lag < 0) cluster_vec[i] = CLUSTER_LOWLOW;
-                else cluster_vec[i] = CLUSTER_HIGHHIGH; //data1[i] > 0 && Wdata > 0
-
+                if (nn == 0) {
+                    cluster_vec[i] = CLUSTER_NEIGHBORLESS;
+                } else {
+                    sp_lag = sp_lag / nn;
+                    lag_vec[i] = sp_lag;
+                    lisa_vec[i] = data[i] * sp_lag;
+                    // assign the cluster
+                    if (data[i] > 0 && sp_lag < 0) cluster_vec[i] = CLUSTER_HIGHLOW;
+                    else if (data[i] < 0 && sp_lag > 0) cluster_vec[i] = CLUSTER_LOWHIGH;
+                    else if (data[i] < 0 && sp_lag < 0) cluster_vec[i] = CLUSTER_LOWLOW;
+                    else cluster_vec[i] = CLUSTER_HIGHHIGH; //data1[i] > 0 && Wdata > 0
+                }
             }
         }
     }
@@ -148,7 +151,7 @@ std::vector<int> UniLocalMoran::GetClusterIndicators() {
     std::vector<int> clusters(num_obs);
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
-        if (sig_local_vec[i] > cuttoff &&
+        if ((sig_local_vec[i] > cuttoff || sig_local_vec[i] < 0) &&
                 (const unsigned long)cluster_vec[i] != CLUSTER_UNDEFINED &&
                 (const unsigned long)cluster_vec[i] != CLUSTER_NEIGHBORLESS)
         {

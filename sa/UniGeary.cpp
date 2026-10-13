@@ -56,7 +56,7 @@ void UniGeary::ComputeLoalSA() {
             cluster_vec[i] = CLUSTER_UNDEFINED;
 
         } else {
-            if (weights->GetNbrSize(i) == 0) {
+            if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
                 cluster_vec[i] = CLUSTER_NEIGHBORLESS;
             } else {
                 // computer spatial lag
@@ -70,17 +70,21 @@ void UniGeary::ComputeLoalSA() {
                         nn += 1;
                     }
                 }
-                sp_lag = sp_lag / nn;
-                sp_lag_square = sp_lag_square / nn;
-                // compute geary's i
-                lag_vec[i] = sp_lag;
-                lisa_vec[i] = data_square[i] - 2.0 * data[i] * sp_lag + sp_lag_square;
+                if (nn == 0) {
+                    cluster_vec[i] = CLUSTER_NEIGHBORLESS;
+                } else {
+                    sp_lag = sp_lag / nn;
+                    sp_lag_square = sp_lag_square / nn;
+                    // compute geary's i
+                    lag_vec[i] = sp_lag;
+                    lisa_vec[i] = data_square[i] - 2.0 * data[i] * sp_lag + sp_lag_square;
 
-                // assign the cluster
-                if (data[i] > 0 && sp_lag > 0) cluster_vec[i] = CLUSTER_HIGHHIGH;
-                else if (data[i] < 0 && sp_lag > 0) cluster_vec[i] = CLUSTER_OTHERPOS;
-                else if (data[i] < 0 && sp_lag < 0) cluster_vec[i] = CLUSTER_LOWLOW;
-                else cluster_vec[i] = CLUSTER_NEGATIVE; //data1[i] > 0 && sp_lag < 0
+                    // assign the cluster
+                    if (data[i] > 0 && sp_lag > 0) cluster_vec[i] = CLUSTER_HIGHHIGH;
+                    else if (data[i] < 0 && sp_lag > 0) cluster_vec[i] = CLUSTER_OTHERPOS;
+                    else if (data[i] < 0 && sp_lag < 0) cluster_vec[i] = CLUSTER_LOWLOW;
+                    else cluster_vec[i] = CLUSTER_NEGATIVE; //data1[i] > 0 && sp_lag < 0
+                }
             }
         }
     }
@@ -188,7 +192,7 @@ std::vector<int> UniGeary::GetClusterIndicators() {
     std::vector<int> clusters(num_obs);
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
-        if (sig_local_vec[i] > cuttoff &&
+        if ((sig_local_vec[i] > cuttoff || sig_local_vec[i] < 0) &&
                 (const unsigned long)cluster_vec[i] != CLUSTER_UNDEFINED &&
                 (const unsigned long)cluster_vec[i] != CLUSTER_NEIGHBORLESS)
         {

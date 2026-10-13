@@ -60,7 +60,7 @@ void BatchLocalMoran::ComputeLoalSA() {
                 cluster_vec[v][i] = CLUSTER_UNDEFINED;
 
             } else {
-                if (weights->GetNbrSize(i) == 0) {
+                if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
                     cluster_vec[v][i] = CLUSTER_NEIGHBORLESS;
                 } else {
                     double sp_lag = 0;
@@ -72,15 +72,18 @@ void BatchLocalMoran::ComputeLoalSA() {
                             nn += 1;
                         }
                     }
-                    sp_lag = sp_lag / nn;
-                    lag_vec[v][i] = sp_lag;
-                    lisa_vec[v][i] = data[v][i] * sp_lag;
-                    // assign the cluster
-                    if (data[v][i] > 0 && sp_lag < 0) cluster_vec[v][i] = CLUSTER_HIGHLOW;
-                    else if (data[v][i] < 0 && sp_lag > 0) cluster_vec[v][i] = CLUSTER_LOWHIGH;
-                    else if (data[v][i] < 0 && sp_lag < 0) cluster_vec[v][i] = CLUSTER_LOWLOW;
-                    else cluster_vec[v][i] = CLUSTER_HIGHHIGH; //data1[i] > 0 && Wdata > 0
-
+                    if (nn == 0) {
+                        cluster_vec[v][i] = CLUSTER_NEIGHBORLESS;
+                    } else {
+                        sp_lag = sp_lag / nn;
+                        lag_vec[v][i] = sp_lag;
+                        lisa_vec[v][i] = data[v][i] * sp_lag;
+                        // assign the cluster
+                        if (data[v][i] > 0 && sp_lag < 0) cluster_vec[v][i] = CLUSTER_HIGHLOW;
+                        else if (data[v][i] < 0 && sp_lag > 0) cluster_vec[v][i] = CLUSTER_LOWHIGH;
+                        else if (data[v][i] < 0 && sp_lag < 0) cluster_vec[v][i] = CLUSTER_LOWLOW;
+                        else cluster_vec[v][i] = CLUSTER_HIGHHIGH; //data1[i] > 0 && Wdata > 0
+                    }
                 }
             }
         }
@@ -139,7 +142,7 @@ std::vector<int> BatchLocalMoran::GetClusterIndicators(int idx)
 
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
-        if (sig_local_vec[idx][i] > cuttoff &&
+        if ((sig_local_vec[idx][i] > cuttoff || sig_local_vec[idx][i] < 0) &&
                 (const unsigned long)cluster_vec[idx][i] != CLUSTER_UNDEFINED &&
                 (const unsigned long)cluster_vec[idx][i] != CLUSTER_NEIGHBORLESS)
         {

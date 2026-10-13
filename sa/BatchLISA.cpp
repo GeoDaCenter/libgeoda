@@ -297,9 +297,13 @@ void BatchLISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_star
 
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         numNeighbors = weights->GetNbrSize(cnt);
-        if (numNeighbors == 0) {
+        if (weights->CheckNeighbor(cnt, cnt)) {
+            numNeighbors -= 1;
+        }
+        if (numNeighbors <= 0) {
             for (int  v=0; v < num_batch; ++v) {
                 sig_cat_vec[v][cnt] = 5; // neighborless cat
+                sig_local_vec[v][cnt] = -1.0;
             }
         } else {
             std::vector<std::vector<double> > permutedSA(num_batch);
@@ -340,9 +344,12 @@ void BatchLISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_star
                 else if (_sigLocal <= 0.05) sig_cat_vec[v][cnt] = 1;
                 else sig_cat_vec[v][cnt] = 0;
 
-                if (undefs[v][cnt]) sig_cat_vec[v][cnt] = 6; // undefined
-
-                sig_local_vec[v][cnt] = _sigLocal;
+                if (undefs[v][cnt]) {
+                    sig_cat_vec[v][cnt] = 6; // undefined
+                    sig_local_vec[v][cnt] = -1.0;
+                } else {
+                    sig_local_vec[v][cnt] = _sigLocal;
+                }
                 // observations with no neighbors get marked as isolates
                 // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category,
                 // we don't need to handle here

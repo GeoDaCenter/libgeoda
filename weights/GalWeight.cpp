@@ -253,14 +253,14 @@ void GalWeight::SetNeighbors(int id, const std::vector<int>& nbr_ids)
 
     int num_nbrs = nbr_ids.size();
 
-    if (num_nbrs <= 0 || num_nbrs > num_obs -1) {
+    if (num_nbrs <= 0 || num_nbrs > num_obs) {
         return;
     }
 
     this->gal[id].SetSizeNbrs(num_nbrs, true);
 
     for (int i=0; i<num_nbrs; ++i) {
-        if (nbr_ids[i] < 0 || nbr_ids[i] > num_obs-1 || nbr_ids[i] == id) {
+        if (nbr_ids[i] < 0 || nbr_ids[i] > num_obs-1) {
             continue;
         }
         this->gal[id].SetNbr(i, nbr_ids[i]);
@@ -275,14 +275,14 @@ void GalWeight::SetNeighborsAndWeights(int id, const std::vector<int>& nbr_ids, 
 
     int num_nbrs = nbr_ids.size();
 
-    if (num_nbrs <= 0 || num_nbrs > num_obs -1) {
+    if (num_nbrs <= 0 || num_nbrs > num_obs) {
         return;
     }
 
     this->gal[id].SetSizeNbrs(num_nbrs, w.empty());
 
     for (int i=0; i<num_nbrs; ++i) {
-        if (nbr_ids[i] < 0 || nbr_ids[i] > num_obs-1 || nbr_ids[i] == id) {
+        if (nbr_ids[i] < 0 || nbr_ids[i] > num_obs-1) {
             continue;
         }
         if (w.empty()) {

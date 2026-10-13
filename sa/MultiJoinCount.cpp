@@ -89,7 +89,7 @@ void MultiJoinCount::ComputeLoalSA() {
                 lisa_vec[i] = 0;
                 cluster_vec[i] = CLUSTER_UNDEFINED;
             } else {
-                if (weights->GetNbrSize(i) == 0) {
+                if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
                     undefs[i] = true; // the isolates should be excluded as undefined
                     cluster_vec[i] = CLUSTER_NEIGHBORLESS;
                 } else {
@@ -112,14 +112,19 @@ void MultiJoinCount::ComputeLoalSA() {
                 lisa_vec[i] = 0;
                 cluster_vec[i] = CLUSTER_UNDEFINED;
             } else {
-                if (zz[i] > 0) { // x_i.z_i = 1
-                    int nbr_size = weights->GetNbrSize(i);
-                    const std::vector<long> &nbrs = weights->GetNeighbors(i);
-                    for (int j = 0; j < nbr_size; ++j) {
-                        if (nbrs[j] != i && !undefs[nbrs[j]]) {
-                            // compute the number of neighbors with
-                            // x_j.z_j = 1 (zz=1) as a spatial lag
-                            lisa_vec[i] += zz[nbrs[j]];
+                if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
+                    undefs[i] = true;
+                    cluster_vec[i] = CLUSTER_NEIGHBORLESS;
+                } else {
+                    if (zz[i] > 0) { // x_i.z_i = 1
+                        int nbr_size = weights->GetNbrSize(i);
+                        const std::vector<long> &nbrs = weights->GetNeighbors(i);
+                        for (int j = 0; j < nbr_size; ++j) {
+                            if (nbrs[j] != i && !undefs[nbrs[j]]) {
+                                // compute the number of neighbors with
+                                // x_j.z_j = 1 (zz=1) as a spatial lag
+                                lisa_vec[i] += zz[nbrs[j]];
+                            }
                         }
                     }
                 }
@@ -137,6 +142,7 @@ void MultiJoinCount::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         if (undefs[cnt] || weights->IsMasked(cnt) == false) {
             sig_cat_vec[cnt] = 6; // undefined cat
+            sig_local_vec[cnt] = -1.0;
             continue;
         }
 
@@ -148,8 +154,12 @@ void MultiJoinCount::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed
 
         // get full neighbors even if has undefined value
         int numNeighbors = weights->GetNbrSize(cnt);
-        if (numNeighbors == 0) {
+        if (weights->CheckNeighbor(cnt, cnt)) {
+            numNeighbors -= 1;
+        }
+        if (numNeighbors <= 0) {
             sig_cat_vec[cnt] = 5; // neighborless cat
+            sig_local_vec[cnt] = -1.0;
             // isolate: don't do permutation
             continue;
         }
@@ -199,6 +209,7 @@ void MultiJoinCount::PermCalcPseudoP_range(int obs_start, int obs_end, uint64_t 
     for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         if (undefs[cnt] || weights->IsMasked(cnt) == false) {
             sig_cat_vec[cnt] = 6; // undefined
+            sig_local_vec[cnt] = -1.0;
             continue;
         }
         // ignore local join count == 0
@@ -208,8 +219,12 @@ void MultiJoinCount::PermCalcPseudoP_range(int obs_start, int obs_end, uint64_t 
         }
         // get full neighbors even if has undefined value
         int numNeighbors = weights->GetNbrSize(cnt);
-        if (numNeighbors == 0) {
+        if (weights->CheckNeighbor(cnt, cnt)) {
+            numNeighbors -= 1;
+        }
+        if (numNeighbors <= 0) {
             sig_cat_vec[cnt] = 5; // neighborless cat
+            sig_local_vec[cnt] = -1.0;
             // isolate: don't do permutation
             continue;
         }
@@ -286,7 +301,9 @@ std::vector<int> MultiJoinCount::GetClusterIndicators() {
     std::vector<int> clusters(num_obs);
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
-        if (sig_local_vec[i] <= cuttoff ) {
+        if (cluster_vec[i] == CLUSTER_UNDEFINED || cluster_vec[i] == CLUSTER_NEIGHBORLESS) {
+            clusters[i] = cluster_vec[i];
+        } else if (sig_local_vec[i] >= 0 && sig_local_vec[i] <= cuttoff ) {
             if (lisa_vec[i] == 0) {
                 clusters[i] = CLUSTER_NOT_SIG;
             } else {

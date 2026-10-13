@@ -71,9 +71,10 @@ void MultiGeary::ComputeLoalSA() {
             cluster_vec[i] = CLUSTER_UNDEFINED;
 
         } else {
-            if (weights->GetNbrSize(i) == 0) {
+            if (weights->GetNbrSize(i) == 0 || (weights->GetNbrSize(i) == 1 && weights->CheckNeighbor(i, i))) {
                 cluster_vec[i] = CLUSTER_NEIGHBORLESS;
             } else {
+                bool has_valid_nbrs = false;
                 for (int v=0; v<num_vars; v++) {
                     // computer spatial lag
                     double sp_lag = 0, sp_lag_square = 0;
@@ -87,6 +88,10 @@ void MultiGeary::ComputeLoalSA() {
                             nn += 1;
                         }
                     }
+                    if (nn == 0) {
+                        break;
+                    }
+                    has_valid_nbrs = true;
                     sp_lag = sp_lag / nn;
                     sp_lag_square = sp_lag_square / nn;
                     // compute geary's i
@@ -94,8 +99,12 @@ void MultiGeary::ComputeLoalSA() {
                     lisa_vec[i] += data_square[v][i] - 2.0 * data[v][i] * sp_lag + sp_lag_square;
                 }
 
-                lag_vec[i] /= num_vars;
-                lisa_vec[i] /= num_vars;
+                if (!has_valid_nbrs) {
+                    cluster_vec[i] = CLUSTER_NEIGHBORLESS;
+                } else {
+                    lag_vec[i] /= num_vars;
+                    lisa_vec[i] /= num_vars;
+                }
 
                 // assign the cluster not here but after permutation
             }
@@ -217,7 +226,7 @@ std::vector<int> MultiGeary::GetClusterIndicators() {
     std::vector<int> clusters(num_obs);
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
-        if (sig_local_vec[i] > cuttoff &&
+        if ((sig_local_vec[i] > cuttoff || sig_local_vec[i] < 0) &&
                 (const unsigned long)cluster_vec[i] != CLUSTER_UNDEFINED &&
                 (const unsigned long)cluster_vec[i] != CLUSTER_NEIGHBORLESS)
         {

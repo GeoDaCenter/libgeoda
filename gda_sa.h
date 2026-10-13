@@ -108,6 +108,24 @@ LISA *gda_localjoincount(GeoDaWeight *w, const std::vector<double> &data,
 LISA *gda_localmultijoincount(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
                          const std::vector<std::vector<bool> > &undefs, double significance_cutoff,
                          int nCPUs, int permutations, const std::string& permutation_method, int last_seed_used);
+
+/**
+ *
+ * @param w
+ * @param data
+ * @param undefs
+ * @param significance_cutoff
+ * @param nCPUs
+ * @param permutations
+ * @param permutation_method
+ * @param last_seed_used
+ * @param a
+ * @return
+ */
+LISA *gda_locallosh(GeoDaWeight *w, const std::vector<double> &data,
+                    const std::vector<bool> &undefs, double significance_cutoff,
+                    int nCPUs, int permutations, const std::string& permutation_method, int last_seed_used,
+                    double a);
 /**
  *
  * @param w
